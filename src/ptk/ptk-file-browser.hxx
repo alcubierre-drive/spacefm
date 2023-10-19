@@ -93,15 +93,34 @@ struct MainWindow;
 
 struct selection_history_data;
 
+struct navigation_history_data
+{
+    void go_back() noexcept;
+    bool has_back() const noexcept;
+    const std::vector<std::filesystem::path>& get_back() const noexcept;
+
+    void go_forward() noexcept;
+    bool has_forward() const noexcept;
+    const std::vector<std::filesystem::path>& get_forward() const noexcept;
+
+    void new_forward(const std::filesystem::path& path) noexcept;
+
+    void reset() noexcept;
+
+    const std::filesystem::path& current() const noexcept;
+
+  private:
+    std::vector<std::filesystem::path> forward_{};
+    std::vector<std::filesystem::path> back_{};
+    std::filesystem::path current_{};
+};
+
 struct PtkFileBrowser
 {
     /* parent class */
     GtkBox parent;
 
     /* <private> */
-    GList* history_{nullptr};
-    GList* curHistory_{nullptr};
-
     vfs::dir dir_{nullptr};
     GtkTreeModel* file_list_{nullptr};
     i32 max_thumbnail_{0};
@@ -165,14 +184,15 @@ struct PtkFileBrowser
     GSList* toolbar_widgets[10];
 
     // private:
-    std::shared_ptr<selection_history_data> history;
+    std::shared_ptr<selection_history_data> selection_history;
+    std::shared_ptr<navigation_history_data> navigation_history;
 
   public:
     // folder_path should be encodede in on-disk encoding
     bool chdir(const std::filesystem::path& folder_path,
                const ptk::file_browser::chdir_mode mode) noexcept;
 
-    const std::filesystem::path cwd() const noexcept;
+    const std::filesystem::path& cwd() const noexcept;
     void canon(const std::filesystem::path& path) noexcept;
 
     u64 get_n_all_files() const noexcept;
@@ -185,7 +205,7 @@ struct PtkFileBrowser
     void go_back() noexcept;
     void go_forward() noexcept;
     void go_up() noexcept;
-    void refresh() noexcept;
+    void refresh(const bool update_selected_files = true) noexcept;
 
     void show_hidden_files(bool show) noexcept;
     void set_single_click(bool single_click) noexcept;
