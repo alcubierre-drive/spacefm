@@ -328,7 +328,7 @@ struct PtkFileBrowser
   public:
     // Signals Add Event
     template<spacefm::signal evt, typename bind_fun>
-    typename std::enable_if<evt == spacefm::signal::chdir_before, sigc::connection>::type
+    typename std::enable_if_t<evt == spacefm::signal::chdir_before, sigc::connection>
     add_event(bind_fun fun)
     {
         // ztd::logger::trace("Signal Connect   : spacefm::signal::chdir_before");
@@ -336,7 +336,7 @@ struct PtkFileBrowser
     }
 
     template<spacefm::signal evt, typename bind_fun>
-    typename std::enable_if<evt == spacefm::signal::chdir_begin, sigc::connection>::type
+    typename std::enable_if_t<evt == spacefm::signal::chdir_begin, sigc::connection>
     add_event(bind_fun fun)
     {
         // ztd::logger::trace("Signal Connect   : spacefm::signal::chdir_begin");
@@ -344,7 +344,7 @@ struct PtkFileBrowser
     }
 
     template<spacefm::signal evt, typename bind_fun>
-    typename std::enable_if<evt == spacefm::signal::chdir_after, sigc::connection>::type
+    typename std::enable_if_t<evt == spacefm::signal::chdir_after, sigc::connection>
     add_event(bind_fun fun)
     {
         // ztd::logger::trace("Signal Connect   : spacefm::signal::chdir_after");
@@ -352,7 +352,7 @@ struct PtkFileBrowser
     }
 
     template<spacefm::signal evt, typename bind_fun>
-    typename std::enable_if<evt == spacefm::signal::open_item, sigc::connection>::type
+    typename std::enable_if_t<evt == spacefm::signal::open_item, sigc::connection>
     add_event(bind_fun fun)
     {
         // ztd::logger::trace("Signal Connect   : spacefm::signal::open_item");
@@ -360,7 +360,7 @@ struct PtkFileBrowser
     }
 
     template<spacefm::signal evt, typename bind_fun>
-    typename std::enable_if<evt == spacefm::signal::change_content, sigc::connection>::type
+    typename std::enable_if_t<evt == spacefm::signal::change_content, sigc::connection>
     add_event(bind_fun fun)
     {
         // ztd::logger::trace("Signal Connect   : spacefm::signal::change_content");
@@ -368,7 +368,7 @@ struct PtkFileBrowser
     }
 
     template<spacefm::signal evt, typename bind_fun>
-    typename std::enable_if<evt == spacefm::signal::change_sel, sigc::connection>::type
+    typename std::enable_if_t<evt == spacefm::signal::change_sel, sigc::connection>
     add_event(bind_fun fun)
     {
         // ztd::logger::trace("Signal Connect   : spacefm::signal::change_sel");
@@ -376,7 +376,7 @@ struct PtkFileBrowser
     }
 
     template<spacefm::signal evt, typename bind_fun>
-    typename std::enable_if<evt == spacefm::signal::change_pane, sigc::connection>::type
+    typename std::enable_if_t<evt == spacefm::signal::change_pane, sigc::connection>
     add_event(bind_fun fun)
     {
         // ztd::logger::trace("Signal Connect   : spacefm::signal::change_pane");
@@ -385,7 +385,7 @@ struct PtkFileBrowser
 
     // Signals Run Event
     template<spacefm::signal evt>
-    typename std::enable_if<evt == spacefm::signal::chdir_before, void>::type
+    typename std::enable_if_t<evt == spacefm::signal::chdir_before, void>
     run_event()
     {
         // ztd::logger::trace("Signal Execute   : spacefm::signal::chdir_before");
@@ -393,7 +393,7 @@ struct PtkFileBrowser
     }
 
     template<spacefm::signal evt>
-    typename std::enable_if<evt == spacefm::signal::chdir_begin, void>::type
+    typename std::enable_if_t<evt == spacefm::signal::chdir_begin, void>
     run_event()
     {
         // ztd::logger::trace("Signal Execute   : spacefm::signal::chdir_begin");
@@ -401,7 +401,7 @@ struct PtkFileBrowser
     }
 
     template<spacefm::signal evt>
-    typename std::enable_if<evt == spacefm::signal::chdir_after, void>::type
+    typename std::enable_if_t<evt == spacefm::signal::chdir_after, void>
     run_event()
     {
         // ztd::logger::trace("Signal Execute   : spacefm::signal::chdir_after");
@@ -409,7 +409,7 @@ struct PtkFileBrowser
     }
 
     template<spacefm::signal evt>
-    typename std::enable_if<evt == spacefm::signal::open_item, void>::type
+    typename std::enable_if_t<evt == spacefm::signal::open_item, void>
     run_event(const std::filesystem::path& path, ptk::open_action action)
     {
         // ztd::logger::trace("Signal Execute   : spacefm::signal::open_item");
@@ -417,7 +417,7 @@ struct PtkFileBrowser
     }
 
     template<spacefm::signal evt>
-    typename std::enable_if<evt == spacefm::signal::change_content, void>::type
+    typename std::enable_if_t<evt == spacefm::signal::change_content, void>
     run_event()
     {
         // ztd::logger::trace("Signal Execute   : spacefm::signal::change_content");
@@ -425,7 +425,7 @@ struct PtkFileBrowser
     }
 
     template<spacefm::signal evt>
-    typename std::enable_if<evt == spacefm::signal::change_sel, void>::type
+    typename std::enable_if_t<evt == spacefm::signal::change_sel, void>
     run_event()
     {
         // ztd::logger::trace("Signal Execute   : spacefm::signal::change_sel");
@@ -433,7 +433,7 @@ struct PtkFileBrowser
     }
 
     template<spacefm::signal evt>
-    typename std::enable_if<evt == spacefm::signal::change_pane, void>::type
+    typename std::enable_if_t<evt == spacefm::signal::change_pane, void>
     run_event()
     {
         // ztd::logger::trace("Signal Execute   : spacefm::signal::change_pane");
