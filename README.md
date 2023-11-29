@@ -12,13 +12,7 @@ You can find the instructions on how to fix it [**here**](extra/README-GTK3.md).
 
 ## Building
 
-__Gentoo__
-
-ebuild at
-https://github.com/thermitegod/overlay/tree/master/x11-misc/spacefm
-
-
-__Everyone Else__
+__Manual Build (gcc-12)__
 
 ```
 mkdir build
@@ -27,6 +21,9 @@ meson setup --buildtype=release ..
 ninja
 ```
 
+__Dependencies (Arch/Manjaro)__
+
+```sudo pacman -S nlohmann-json exo zmqpp cli11```
 
 ## LICENSE
 
