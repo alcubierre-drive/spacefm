@@ -16,7 +16,7 @@
 #include <string>
 #include <string_view>
 
-#include <format>
+#include <fmt/core.h>
 
 #include <filesystem>
 
@@ -99,11 +99,11 @@ vfs::trash_can::get_trash_dir(const std::filesystem::path& path) noexcept
 
     // path on another device, cannot use $HOME trashcan
     const std::filesystem::path top_dir = toplevel(path);
-    // BUGGED - only the std::format part of the path is used in creating 'trash_path',
+    // BUGGED - only the fmt::format part of the path is used in creating 'trash_path',
     // do not think this is my bug.
-    // const auto trash_path = top_dir / std::format("/.Trash-{}", getuid());
+    // const auto trash_path = top_dir / fmt::format("/.Trash-{}", getuid());
     const std::filesystem::path trash_path =
-        std::format("{}/.Trash-{}", top_dir.string(), getuid());
+        fmt::format("{}/.Trash-{}", top_dir.string(), getuid());
 
     auto trash_dir = std::make_shared<vfs::trash_can::trash_dir>(trash_path);
     this->trash_dirs_[id] = trash_dir;
@@ -123,19 +123,19 @@ vfs::trash_can::trash(const std::filesystem::path& path) noexcept
     if (path.string().contains("Trash"))
     {
         if (path.string().ends_with("/Trash") ||
-            path.string().ends_with(std::format("/.Trash-{}", getuid())))
+            path.string().ends_with(fmt::format("/.Trash-{}", getuid())))
         {
             ztd::logger::warn("Refusing to trash the Trash Dir: {}", path.string());
             return true;
         }
         else if (path.string().ends_with("/Trash/files") ||
-                 path.string().ends_with(std::format("/.Trash-{}/files", getuid())))
+                 path.string().ends_with(fmt::format("/.Trash-{}/files", getuid())))
         {
             ztd::logger::warn("Refusing to trash the Trash Files Dir: {}", path.string());
             return true;
         }
         else if (path.string().ends_with("/Trash/info") ||
-                 path.string().ends_with(std::format("/.Trash-{}/info", getuid())))
+                 path.string().ends_with(fmt::format("/.Trash-{}/info", getuid())))
         {
             ztd::logger::warn("Refusing to trash the Trash Info Dir: {}", path.string());
             return true;
@@ -202,7 +202,7 @@ vfs::trash_can::trash_dir::unique_name(const std::filesystem::path& path) const 
 
     for (usize i = 1; true; ++i)
     {
-        const std::string check_to_trash_filename = std::format("{}_{}{}", basename, i, ext);
+        const std::string check_to_trash_filename = fmt::format("{}_{}{}", basename, i, ext);
         const auto check_to_trash_path = this->files_path_ / check_to_trash_filename;
         if (!std::filesystem::exists(check_to_trash_path))
         {
@@ -240,30 +240,35 @@ vfs::trash_can::trash_dir::create_trash_dir() const noexcept
 const std::string
 vfs::trash_can::trash_dir::create_trash_date(const std::time_t time) const noexcept
 {
-    const auto point = std::chrono::system_clock::from_time_t(time);
+    struct tm _tstruct;
+    struct tm* tim = localtime_r(&time, &_tstruct);
+    char buf[128] = {0};
+    strftime( buf, 127, "%FT%T", tim );
+    return std::string(buf);
 
-    const auto date = std::chrono::floor<std::chrono::days>(point);
+    /* const auto point = std::chrono::system_clock::from_time_t(time); */
 
-    const auto midnight = point - std::chrono::floor<std::chrono::days>(point);
-    const auto hours = std::chrono::duration_cast<std::chrono::hours>(midnight);
-    const auto minutes = std::chrono::duration_cast<std::chrono::minutes>(midnight - hours);
-    const auto seconds =
-        std::chrono::duration_cast<std::chrono::seconds>(midnight - hours - minutes);
+    /* const auto date = std::chrono::floor<std::chrono::days>(point); */
 
-    return std::format("{0:%Y-%m-%d}T{1:%H}:{2:%M}:{3:%S}", date, hours, minutes, seconds);
+    /* const auto midnight = point - std::chrono::floor<std::chrono::days>(point); */
+    /* const auto hours = std::chrono::duration_cast<std::chrono::hours>(midnight); */
+    /* const auto minutes = std::chrono::duration_cast<std::chrono::minutes>(midnight - hours); */
+    /* const auto seconds = */
+    /*     std::chrono::duration_cast<std::chrono::seconds>(midnight - hours - minutes); */
+    /* return fmt::format("{0:%Y-%m-%d}T{:2d}:{:2d}:{:2d}", date, hours.count(), minutes.count(), seconds.count()); */
 }
 
 void
 vfs::trash_can::trash_dir::create_trash_info(const std::filesystem::path& path,
                                              const std::string_view target_name) const noexcept
 {
-    const auto trash_info = this->info_path_ / std::format("{}.trashinfo", target_name);
+    const auto trash_info = this->info_path_ / fmt::format("{}.trashinfo", target_name);
 
     const auto time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     const auto iso_time = create_trash_date(time);
 
     const std::string trash_info_content =
-        std::format("[Trash Info]\nPath={}\nDeletionDate={}\n", path.string(), iso_time);
+        fmt::format("[Trash Info]\nPath={}\nDeletionDate={}\n", path.string(), iso_time);
 
     write_file(trash_info, trash_info_content);
 }

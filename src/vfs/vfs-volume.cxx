@@ -19,7 +19,7 @@
 #include <string>
 #include <string_view>
 
-#include <format>
+#include <fmt/core.h>
 
 #include <filesystem>
 
@@ -116,6 +116,28 @@ static std::vector<devmount_t> devmounts;
  * udev & mount monitors
  */
 
+struct __contains_fn
+{
+    template<std::input_iterator I, std::sentinel_for<I> S,
+             class T, class Proj = std::identity>
+    requires std::indirect_binary_predicate<std::ranges::equal_to, std::projected<I, Proj>,
+                                            const T*>
+    constexpr bool operator()(I first, S last, const T& value, Proj proj = {}) const
+    {
+        return std::ranges::find(std::move(first), last, value, proj) != last;
+    }
+
+    template<std::ranges::input_range R, class T, class Proj = std::identity>
+    requires std::indirect_binary_predicate<std::ranges::equal_to,
+                                            std::projected<std::ranges::iterator_t<R>, Proj>,
+                                            const T*>
+    constexpr bool operator()(R&& r, const T& value, Proj proj = {}) const
+    {
+        return (*this)(std::ranges::begin(r), std::ranges::end(r), std::move(value), proj);
+    }
+};
+inline constexpr __contains_fn ztd_contains {};
+
 static void
 parse_mounts(bool report)
 {
@@ -196,7 +218,7 @@ parse_mounts(bool report)
             }
         }
 
-        if (devmount && !std::ranges::contains(devmount->mounts, mount.mount_point))
+        if (devmount && !ztd_contains(devmount->mounts, mount.mount_point))
         {
             // ztd::logger::debug("    prepended");
             devmount->mounts.emplace_back(mount.mount_point);
@@ -757,7 +779,7 @@ vfs::volume::device_mount_cmd() noexcept
     {
         return std::nullopt;
     }
-    return std::format("{} {}", path.string(), ztd::shell::quote(this->device_file_));
+    return fmt::format("{} {}", path.string(), ztd::shell::quote(this->device_file_));
 }
 
 const std::optional<std::string>
@@ -768,7 +790,7 @@ vfs::volume::device_unmount_cmd() noexcept
     {
         return std::nullopt;
     }
-    return std::format("{} {}", path.string(), ztd::shell::quote(this->mount_point_));
+    return fmt::format("{} {}", path.string(), ztd::shell::quote(this->mount_point_));
 }
 
 const std::string_view
@@ -979,7 +1001,7 @@ vfs::volume::set_info() noexcept
 
         if (!this->mount_point_.empty())
         {
-            disp_mount = std::format("{}", this->mount_point_);
+            disp_mount = fmt::format("{}", this->mount_point_);
         }
         else
         {
@@ -1003,7 +1025,7 @@ vfs::volume::set_info() noexcept
 
     disp_device = this->device_file_;
     disp_fstype = this->fstype_;
-    disp_devnum = std::format("{}:{}", gnu_dev_major(this->devnum_), gnu_dev_minor(this->devnum_));
+    disp_devnum = fmt::format("{}:{}", gnu_dev_major(this->devnum_), gnu_dev_minor(this->devnum_));
 
     std::string parameter;
     const auto user_format = xset_get_s(xset::name::dev_dispname);
@@ -1019,7 +1041,7 @@ vfs::volume::set_info() noexcept
     }
     else
     {
-        parameter = std::format("{} {} {} {} {}",
+        parameter = fmt::format("{} {} {} {} {}",
                                 disp_device,
                                 disp_size,
                                 disp_fstype,

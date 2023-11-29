@@ -16,7 +16,7 @@
 #include <string>
 #include <string_view>
 
-#include <format>
+#include <fmt/core.h>
 
 #include <filesystem>
 
@@ -135,7 +135,7 @@ run_ipc_command(const std::string_view socket_commands_json)
     {
         for (MainWindow* window2 : main_window_get_all())
         {
-            const std::string str = std::format("{}", fmt::ptr(window2));
+            const std::string str = fmt::format("{}", fmt::ptr(window2));
             if (str == window)
             {
                 main_window = window2;
@@ -144,7 +144,7 @@ run_ipc_command(const std::string_view socket_commands_json)
         }
         if (main_window == nullptr)
         {
-            return {SOCKET_INVALID, std::format("invalid window {}", window)};
+            return {SOCKET_INVALID, fmt::format("invalid window {}", window)};
         }
     }
 
@@ -155,12 +155,12 @@ run_ipc_command(const std::string_view socket_commands_json)
     }
     if (!is_valid_panel(panel))
     {
-        return {SOCKET_INVALID, std::format("invalid panel {}", panel)};
+        return {SOCKET_INVALID, fmt::format("invalid panel {}", panel)};
     }
     if (!xset_get_b_panel(panel, xset::panel::show) ||
         gtk_notebook_get_current_page(main_window->get_panel_notebook(panel)) == -1)
     {
-        return {SOCKET_INVALID, std::format("panel {} is not visible", panel)};
+        return {SOCKET_INVALID, fmt::format("panel {} is not visible", panel)};
     }
 
     // tab
@@ -170,7 +170,7 @@ run_ipc_command(const std::string_view socket_commands_json)
     }
     if (tab < 1 || tab > gtk_notebook_get_n_pages(main_window->get_panel_notebook(panel)))
     {
-        return {SOCKET_INVALID, std::format("invalid tab {}", tab)};
+        return {SOCKET_INVALID, fmt::format("invalid tab {}", tab)};
     }
     PtkFileBrowser* file_browser = PTK_FILE_BROWSER_REINTERPRET(
         gtk_notebook_get_nth_page(main_window->get_panel_notebook(panel), tab - 1));
@@ -193,7 +193,7 @@ run_ipc_command(const std::string_view socket_commands_json)
             // size format '620x480'
             if (!value.contains('x'))
             {
-                return {SOCKET_INVALID, std::format("invalid size format {}", value)};
+                return {SOCKET_INVALID, fmt::format("invalid size format {}", value)};
             }
             const auto size = ztd::split(value, "x");
             width = std::stoi(size[0]);
@@ -201,7 +201,7 @@ run_ipc_command(const std::string_view socket_commands_json)
 
             if (height < 1 || width < 1)
             {
-                return {SOCKET_INVALID, std::format("invalid size {}", value)};
+                return {SOCKET_INVALID, fmt::format("invalid size {}", value)};
             }
             if (property == "window-size")
             {
@@ -402,7 +402,7 @@ run_ipc_command(const std::string_view socket_commands_json)
             if (!(is_valid_tab(new_tab) || is_valid_tab_code(new_tab)) || new_tab == INVALID_TAB ||
                 new_tab > gtk_notebook_get_n_pages(main_window->get_panel_notebook(panel)))
             {
-                return {SOCKET_INVALID, std::format("invalid tab number: {}", new_tab)};
+                return {SOCKET_INVALID, fmt::format("invalid tab number: {}", new_tab)};
             }
             file_browser->go_tab(new_tab);
         }
@@ -412,7 +412,7 @@ run_ipc_command(const std::string_view socket_commands_json)
 
             if (!std::filesystem::is_directory(value))
             {
-                return {SOCKET_FAILURE, std::format("not a directory: '{}'", value)};
+                return {SOCKET_FAILURE, fmt::format("not a directory: '{}'", value)};
             }
 
             main_window->focus_panel(panel);
@@ -536,8 +536,12 @@ run_ipc_command(const std::string_view socket_commands_json)
             {
                 bool found = false;
                 GtkTreeViewColumn* col;
-                for (const auto [index, column_title] : std::views::enumerate(column_titles))
+                /* for (const auto [index, column_title] : std::views::enumerate(column_titles)) */
+                /* { */
+                for (auto iter=column_titles.begin(); iter!=column_titles.end(); iter++)
                 {
+                    auto index = std::distance(column_titles.begin(), iter);
+                    auto& column_title = *iter;
                     col = gtk_tree_view_get_column(GTK_TREE_VIEW(file_browser->folder_view()),
                                                    static_cast<i32>(index));
                     if (!col)
@@ -569,7 +573,7 @@ run_ipc_command(const std::string_view socket_commands_json)
                 }
                 else
                 {
-                    return {SOCKET_INVALID, std::format("invalid column name '{}'", value)};
+                    return {SOCKET_INVALID, fmt::format("invalid column name '{}'", value)};
                 }
             }
         }
@@ -629,7 +633,7 @@ run_ipc_command(const std::string_view socket_commands_json)
 
             else
             {
-                return {SOCKET_INVALID, std::format("invalid column name '{}'", subproperty)};
+                return {SOCKET_INVALID, fmt::format("invalid column name '{}'", subproperty)};
             }
             file_browser->set_sort_order(j);
         }
@@ -682,7 +686,7 @@ run_ipc_command(const std::string_view socket_commands_json)
             }
             else
             {
-                return {SOCKET_INVALID, std::format("invalid {} value", subproperty)};
+                return {SOCKET_INVALID, fmt::format("invalid {} value", subproperty)};
             }
             file_browser->set_sort_extra(name);
         }
@@ -761,12 +765,12 @@ run_ipc_command(const std::string_view socket_commands_json)
             }
             catch (const Glib::FileError& e)
             {
-                return {SOCKET_INVALID, std::format("error reading file '{}'", value)};
+                return {SOCKET_INVALID, fmt::format("error reading file '{}'", value)};
             }
             if (!g_utf8_validate(contents.data(), -1, nullptr))
             {
                 return {SOCKET_INVALID,
-                        std::format("file '{}' does not contain valid UTF-8 text", value)};
+                        fmt::format("file '{}' does not contain valid UTF-8 text", value)};
             }
             GtkClipboard* clip =
                 gtk_clipboard_get(property == "clipboard-from-file" ? GDK_SELECTION_CLIPBOARD
@@ -832,11 +836,11 @@ run_ipc_command(const std::string_view socket_commands_json)
 
             if (value.empty())
             {
-                return {SOCKET_FAILURE, std::format("{} requires a directory path", property)};
+                return {SOCKET_FAILURE, fmt::format("{} requires a directory path", property)};
             }
             if (!std::filesystem::is_directory(value))
             {
-                return {SOCKET_FAILURE, std::format("directory '{}' does not exist", value)};
+                return {SOCKET_FAILURE, fmt::format("directory '{}' does not exist", value)};
             }
             file_browser->chdir(value);
         }
@@ -858,7 +862,7 @@ run_ipc_command(const std::string_view socket_commands_json)
 
             if (!value.ends_with(".desktop"))
             {
-                return {SOCKET_FAILURE, std::format("Must be a .desktop file '{}'", value)};
+                return {SOCKET_FAILURE, fmt::format("Must be a .desktop file '{}'", value)};
             }
 
             const std::filesystem::path editor = value;
@@ -892,13 +896,13 @@ run_ipc_command(const std::string_view socket_commands_json)
             }
 
             return {SOCKET_FAILURE,
-                    std::format("Terminal is not supported '{}'\nSupported List:\n{}",
+                    fmt::format("Terminal is not supported '{}'\nSupported List:\n{}",
                                 value,
                                 ztd::join(supported_terminals, "\n"))};
         }
         else
         {
-            return {SOCKET_FAILURE, std::format("unknown property '{}'", property)};
+            return {SOCKET_FAILURE, fmt::format("unknown property '{}'", property)};
         }
     }
     else if (command == "get")
@@ -909,22 +913,22 @@ run_ipc_command(const std::string_view socket_commands_json)
             i32 width;
             i32 height;
             gtk_window_get_default_size(GTK_WINDOW(main_window), &width, &height);
-            return {SOCKET_SUCCESS, std::format("{}x{}", width, height)};
+            return {SOCKET_SUCCESS, fmt::format("{}x{}", width, height)};
         }
         else if (property == "window-position")
         {
             i32 width;
             i32 height;
             gtk_window_get_position(GTK_WINDOW(main_window), &width, &height);
-            return {SOCKET_SUCCESS, std::format("{}x{}", width, height)};
+            return {SOCKET_SUCCESS, fmt::format("{}x{}", width, height)};
         }
         else if (property == "window-maximized")
         {
-            return {SOCKET_SUCCESS, std::format("{}", !!main_window->maximized)};
+            return {SOCKET_SUCCESS, fmt::format("{}", !!main_window->maximized)};
         }
         else if (property == "window-fullscreen")
         {
-            return {SOCKET_SUCCESS, std::format("{}", !!main_window->fullscreen)};
+            return {SOCKET_SUCCESS, fmt::format("{}", !!main_window->fullscreen)};
         }
         else if (property == "screen-size")
         {
@@ -934,7 +938,7 @@ run_ipc_command(const std::string_view socket_commands_json)
             GdkRectangle workarea = GdkRectangle();
             gdk_monitor_get_workarea(gdk_display_get_primary_monitor(gdk_display_get_default()),
                                      &workarea);
-            return {SOCKET_SUCCESS, std::format("{}x{}", workarea.width, workarea.height)};
+            return {SOCKET_SUCCESS, fmt::format("{}x{}", workarea.width, workarea.height)};
 #endif
         }
         else if (property == "window-vslider-top" || property == "window-vslider-bottom" ||
@@ -959,13 +963,13 @@ run_ipc_command(const std::string_view socket_commands_json)
             }
             else
             {
-                return {SOCKET_FAILURE, std::format("unknown property '{}'", property)};
+                return {SOCKET_FAILURE, fmt::format("unknown property '{}'", property)};
             }
-            return {SOCKET_SUCCESS, std::format("{}", gtk_paned_get_position(pane))};
+            return {SOCKET_SUCCESS, fmt::format("{}", gtk_paned_get_position(pane))};
         }
         else if (property == "focused-panel")
         {
-            return {SOCKET_SUCCESS, std::format("{}", main_window->curpanel)};
+            return {SOCKET_SUCCESS, fmt::format("{}", main_window->curpanel)};
         }
         else if (property == "focused-pane")
         {
@@ -990,7 +994,7 @@ run_ipc_command(const std::string_view socket_commands_json)
         else if (property == "current-tab")
         {
             return {SOCKET_SUCCESS,
-                    std::format("{}",
+                    fmt::format("{}",
                                 gtk_notebook_page_num(main_window->get_panel_notebook(panel),
                                                       GTK_WIDGET(file_browser)) +
                                     1)};
@@ -1002,7 +1006,7 @@ run_ipc_command(const std::string_view socket_commands_json)
             // const tab_t tab_count = counts.tab_count;
             // const tab_t tab_num = counts.tab_num;
 
-            return {SOCKET_SUCCESS, std::format("{}", panel_count)};
+            return {SOCKET_SUCCESS, fmt::format("{}", panel_count)};
         }
         else if (property == "tab-count")
         {
@@ -1011,7 +1015,7 @@ run_ipc_command(const std::string_view socket_commands_json)
             const tab_t tab_count = counts.tab_count;
             // const tab_t tab_num = counts.tab_num;
 
-            return {SOCKET_SUCCESS, std::format("{}", tab_count)};
+            return {SOCKET_SUCCESS, fmt::format("{}", tab_count)};
         }
         else if (property == "devices-visible" || property == "dirtree-visible" ||
                  property == "toolbar-visible" || property == "sidetoolbar-visible" ||
@@ -1054,23 +1058,23 @@ run_ipc_command(const std::string_view socket_commands_json)
             else if (property.starts_with("panel"))
             {
                 const panel_t j = std::stoi(property.substr(5, 1));
-                return {SOCKET_SUCCESS, std::format("{}", xset_get_b_panel(j, xset::panel::show))};
+                return {SOCKET_SUCCESS, fmt::format("{}", xset_get_b_panel(j, xset::panel::show))};
             }
             if (!valid)
             {
-                return {SOCKET_FAILURE, std::format("unknown property '{}'", property)};
+                return {SOCKET_FAILURE, fmt::format("unknown property '{}'", property)};
             }
             if (use_mode)
             {
                 return {SOCKET_SUCCESS,
-                        std::format("{}",
+                        fmt::format("{}",
                                     xset_get_b_panel_mode(panel,
                                                           xset_panel_var,
                                                           main_window->panel_context.at(panel)))};
             }
             else
             {
-                return {SOCKET_SUCCESS, std::format("{}", xset_get_b_panel(panel, xset_panel_var))};
+                return {SOCKET_SUCCESS, fmt::format("{}", xset_get_b_panel(panel, xset_panel_var))};
             }
         }
         else if (property == "panel-hslider-top" || property == "panel-hslider-bottom" ||
@@ -1091,9 +1095,9 @@ run_ipc_command(const std::string_view socket_commands_json)
             }
             else
             {
-                return {SOCKET_FAILURE, std::format("unknown property '{}'", property)};
+                return {SOCKET_FAILURE, fmt::format("unknown property '{}'", property)};
             }
-            return {SOCKET_SUCCESS, std::format("{}", gtk_paned_get_position(pane))};
+            return {SOCKET_SUCCESS, fmt::format("{}", gtk_paned_get_position(pane))};
         }
         else if (property == "column-width")
         { // COLUMN
@@ -1103,8 +1107,12 @@ run_ipc_command(const std::string_view socket_commands_json)
             {
                 bool found = false;
                 GtkTreeViewColumn* col = nullptr;
-                for (const auto [index, column_title] : std::views::enumerate(column_titles))
+                /* for (const auto [index, column_title] : std::views::enumerate(column_titles)) */
+                /* { */
+                for (auto iter=column_titles.begin(); iter!=column_titles.end(); iter++)
                 {
+                    auto index = std::distance(column_titles.begin(), iter);
+                    auto& column_title = *iter;
                     col = gtk_tree_view_get_column(GTK_TREE_VIEW(file_browser->folder_view()),
                                                    static_cast<i32>(index));
                     if (!col)
@@ -1131,11 +1139,11 @@ run_ipc_command(const std::string_view socket_commands_json)
                 }
                 if (found)
                 {
-                    return {SOCKET_SUCCESS, std::format("{}", gtk_tree_view_column_get_width(col))};
+                    return {SOCKET_SUCCESS, fmt::format("{}", gtk_tree_view_column_get_width(col))};
                 }
                 else
                 {
-                    return {SOCKET_INVALID, std::format("invalid column name '{}'", subproperty)};
+                    return {SOCKET_INVALID, fmt::format("invalid column name '{}'", subproperty)};
                 }
             }
         }
@@ -1176,14 +1184,14 @@ run_ipc_command(const std::string_view socket_commands_json)
             if (property == "sort-ascend")
             {
                 return {SOCKET_SUCCESS,
-                        std::format(
+                        fmt::format(
                             "{}",
                             file_browser->is_sort_type(GtkSortType::GTK_SORT_ASCENDING) ? 1 : 0)};
             }
             else if (property == "sort-natural")
             {
                 return {SOCKET_SUCCESS,
-                        std::format("{}",
+                        fmt::format("{}",
                                     xset_get_b_panel(file_browser->panel(), xset::panel::sort_extra)
                                         ? 1
                                         : 0)};
@@ -1192,7 +1200,7 @@ run_ipc_command(const std::string_view socket_commands_json)
             {
                 return {
                     SOCKET_SUCCESS,
-                    std::format("{}",
+                    fmt::format("{}",
                                 xset_get_b_panel(file_browser->panel(), xset::panel::sort_extra) &&
                                         xset_get_int_panel(file_browser->panel(),
                                                            xset::panel::sort_extra,
@@ -1203,7 +1211,7 @@ run_ipc_command(const std::string_view socket_commands_json)
             else if (property == "sort-hidden-first")
             {
                 return {SOCKET_SUCCESS,
-                        std::format("{}",
+                        fmt::format("{}",
                                     xset_get_int_panel(file_browser->panel(),
                                                        xset::panel::sort_extra,
                                                        xset::var::z) == xset::b::xtrue
@@ -1230,26 +1238,26 @@ run_ipc_command(const std::string_view socket_commands_json)
             }
             else
             {
-                return {SOCKET_FAILURE, std::format("unknown property '{}'", property)};
+                return {SOCKET_FAILURE, fmt::format("unknown property '{}'", property)};
             }
         }
         else if (property == "show-thumbnails")
         {
-            return {SOCKET_SUCCESS, std::format("{}", app_settings.show_thumbnail() ? 1 : 0)};
+            return {SOCKET_SUCCESS, fmt::format("{}", app_settings.show_thumbnail() ? 1 : 0)};
         }
         else if (property == "max-thumbnail-size")
         {
             return {SOCKET_SUCCESS,
-                    std::format("{}", vfs_file_size_format(app_settings.max_thumb_size()))};
+                    fmt::format("{}", vfs_file_size_format(app_settings.max_thumb_size()))};
         }
         else if (property == "large-icons")
         {
-            return {SOCKET_SUCCESS, std::format("{}", file_browser->using_large_icons() ? 1 : 0)};
+            return {SOCKET_SUCCESS, fmt::format("{}", file_browser->using_large_icons() ? 1 : 0)};
         }
         else if (property == "statusbar-text")
         {
             return {SOCKET_SUCCESS,
-                    std::format("{}", gtk_label_get_text(file_browser->status_label))};
+                    fmt::format("{}", gtk_label_get_text(file_browser->status_label))};
         }
         else if (property == "pathbar-text")
         {
@@ -1324,9 +1332,9 @@ run_ipc_command(const std::string_view socket_commands_json)
             std::string str;
             for (const std::string_view path : pathv)
             {
-                str.append(std::format("{} ", ztd::shell::quote(path)));
+                str.append(fmt::format("{} ", ztd::shell::quote(path)));
             }
-            return {SOCKET_SUCCESS, std::format("({})", str)};
+            return {SOCKET_SUCCESS, fmt::format("({})", str)};
 #endif
         }
         else if (property == "selected-filenames" || property == "selected-files")
@@ -1345,16 +1353,16 @@ run_ipc_command(const std::string_view socket_commands_json)
                 {
                     continue;
                 }
-                str.append(std::format("{} ", ztd::shell::quote(file->name())));
+                str.append(fmt::format("{} ", ztd::shell::quote(file->name())));
             }
-            return {SOCKET_SUCCESS, std::format("({})", str)};
+            return {SOCKET_SUCCESS, fmt::format("({})", str)};
         }
         else if (property == "selected-pattern")
         {
         }
         else if (property == "current-dir")
         {
-            return {SOCKET_SUCCESS, std::format("{}", file_browser->cwd().string())};
+            return {SOCKET_SUCCESS, fmt::format("{}", file_browser->cwd().string())};
         }
         else if (property == "thumbnailer")
         {
@@ -1386,7 +1394,7 @@ run_ipc_command(const std::string_view socket_commands_json)
         }
         else
         {
-            return {SOCKET_FAILURE, std::format("unknown property '{}'", property)};
+            return {SOCKET_FAILURE, fmt::format("unknown property '{}'", property)};
         }
     }
     else if (command == "set-task")
@@ -1404,7 +1412,7 @@ run_ipc_command(const std::string_view socket_commands_json)
             do
             {
                 gtk_tree_model_get(model, &it, task_view_column::data, &ptask, -1);
-                const std::string str = std::format("{}", fmt::ptr(ptask));
+                const std::string str = fmt::format("{}", fmt::ptr(ptask));
                 if (str == data[i])
                 {
                     break;
@@ -1414,11 +1422,11 @@ run_ipc_command(const std::string_view socket_commands_json)
         }
         if (!ptask)
         {
-            return {SOCKET_INVALID, std::format("invalid task '{}'", data[i])};
+            return {SOCKET_INVALID, fmt::format("invalid task '{}'", data[i])};
         }
         if (ptask->task->type_ != vfs::file_task::type::exec)
         {
-            return {SOCKET_INVALID, std::format("internal task {} is read-only", data[i])};
+            return {SOCKET_INVALID, fmt::format("internal task {} is read-only", data[i])};
         }
 
         // set model value
@@ -1512,7 +1520,7 @@ run_ipc_command(const std::string_view socket_commands_json)
             }
             else
             {
-                return {SOCKET_INVALID, std::format("invalid queue_state '{}'", subproperty)};
+                return {SOCKET_INVALID, fmt::format("invalid queue_state '{}'", subproperty)};
             }
             main_task_start_queued(main_window->task_view, nullptr);
             return {SOCKET_SUCCESS, ""};
@@ -1532,7 +1540,7 @@ run_ipc_command(const std::string_view socket_commands_json)
         }
         else
         {
-            return {SOCKET_INVALID, std::format("invalid task property '{}'", subproperty)};
+            return {SOCKET_INVALID, fmt::format("invalid task property '{}'", subproperty)};
         }
         gtk_list_store_set(GTK_LIST_STORE(model), &it, j, value.data(), -1);
     }
@@ -1547,7 +1555,7 @@ run_ipc_command(const std::string_view socket_commands_json)
             do
             {
                 gtk_tree_model_get(model, &it, task_view_column::data, &ptask, -1);
-                const std::string str = std::format("{}", fmt::ptr(ptask));
+                const std::string str = fmt::format("{}", fmt::ptr(ptask));
                 if (str == property)
                 {
                     break;
@@ -1557,7 +1565,7 @@ run_ipc_command(const std::string_view socket_commands_json)
         }
         if (!ptask)
         {
-            return {SOCKET_INVALID, std::format("invalid task '{}'", property)};
+            return {SOCKET_INVALID, fmt::format("invalid task '{}'", property)};
         }
 
         // get model value
@@ -1567,7 +1575,7 @@ run_ipc_command(const std::string_view socket_commands_json)
             ptk_file_task_lock(ptask);
             if (!ptask->task->exec_icon.empty())
             {
-                return {SOCKET_SUCCESS, std::format("{}", ptask->task->exec_icon)};
+                return {SOCKET_SUCCESS, fmt::format("{}", ptask->task->exec_icon)};
             }
             ptk_file_task_unlock(ptask);
             return {SOCKET_SUCCESS, ""};
@@ -1590,7 +1598,7 @@ run_ipc_command(const std::string_view socket_commands_json)
         }
         else if (property == "progress")
         {
-            return {SOCKET_SUCCESS, std::format("{}", ptask->task->percent)};
+            return {SOCKET_SUCCESS, fmt::format("{}", ptask->task->percent)};
         }
         else if (property == "total")
         {
@@ -1647,19 +1655,19 @@ run_ipc_command(const std::string_view socket_commands_json)
         {
             if (ptask->pop_handler)
             {
-                return {SOCKET_SUCCESS, std::format("{}", ptask->pop_handler)};
+                return {SOCKET_SUCCESS, fmt::format("{}", ptask->pop_handler)};
             }
             return {SOCKET_SUCCESS, ""};
         }
         else
         {
-            return {SOCKET_INVALID, std::format("invalid task property '{}'", property)};
+            return {SOCKET_INVALID, fmt::format("invalid task property '{}'", property)};
         }
         char* str2;
         gtk_tree_model_get(model, &it, j, &str2, -1);
         if (str2)
         {
-            return {SOCKET_SUCCESS, std::format("{}", str2)};
+            return {SOCKET_SUCCESS, fmt::format("{}", str2)};
         }
         std::free(str2);
     }
@@ -1690,12 +1698,12 @@ run_ipc_command(const std::string_view socket_commands_json)
 
             if (opt_cmd.empty())
             {
-                return {SOCKET_FAILURE, std::format("{} requires a command", command)};
+                return {SOCKET_FAILURE, fmt::format("{} requires a command", command)};
             }
             std::string cmd;
             for (const std::string_view c : opt_cmd)
             {
-                cmd.append(std::format(" {}", c));
+                cmd.append(fmt::format(" {}", c));
             }
 
             PtkFileTask* ptask =
@@ -1722,7 +1730,7 @@ run_ipc_command(const std::string_view socket_commands_json)
             if (opt_task)
             {
                 return {SOCKET_SUCCESS,
-                        std::format("Note: $new_task_id not valid until approx one "
+                        fmt::format("Note: $new_task_id not valid until approx one "
                                     "half second after task start\nnew_task_window={}\n"
                                     "new_task_id={}",
                                     fmt::ptr(main_window),
@@ -1736,7 +1744,7 @@ run_ipc_command(const std::string_view socket_commands_json)
 
             if (!std::filesystem::is_regular_file(value))
             {
-                return {SOCKET_INVALID, std::format("no such file '{}'", value)};
+                return {SOCKET_INVALID, fmt::format("no such file '{}'", value)};
             }
             xset_edit(GTK_WIDGET(file_browser), value);
         }
@@ -1748,7 +1756,7 @@ run_ipc_command(const std::string_view socket_commands_json)
             // Resolve TARGET
             if (!std::filesystem::exists(value))
             {
-                return {SOCKET_INVALID, std::format("path does not exist '{}'", value)};
+                return {SOCKET_INVALID, fmt::format("path does not exist '{}'", value)};
             }
 
             const auto real_path_stat = ztd::statx(value);
@@ -1764,7 +1772,7 @@ run_ipc_command(const std::string_view socket_commands_json)
                         vol = vfs_volume_get_by_device(value);
                         if (!vol)
                         {
-                            return {SOCKET_INVALID, std::format("invalid TARGET '{}'", value)};
+                            return {SOCKET_INVALID, fmt::format("invalid TARGET '{}'", value)};
                         }
                     }
                 }
@@ -1776,7 +1784,7 @@ run_ipc_command(const std::string_view socket_commands_json)
             }
             else
             {
-                return {SOCKET_INVALID, std::format("invalid TARGET '{}'", value)};
+                return {SOCKET_INVALID, fmt::format("invalid TARGET '{}'", value)};
             }
 
             // Create command
@@ -1804,7 +1812,7 @@ run_ipc_command(const std::string_view socket_commands_json)
 
             if (cmd.empty())
             {
-                return {SOCKET_INVALID, std::format("invalid mount TARGET '{}'", value)};
+                return {SOCKET_INVALID, fmt::format("invalid mount TARGET '{}'", value)};
             }
             // Task
             PtkFileTask* ptask = ptk_file_exec_new(property,
@@ -1842,12 +1850,12 @@ run_ipc_command(const std::string_view socket_commands_json)
 
             if (opt_file_list.empty())
             {
-                return {SOCKET_INVALID, std::format("{} failed, missing file list", property)};
+                return {SOCKET_INVALID, fmt::format("{} failed, missing file list", property)};
             }
 
             if (!opt_cwd.empty() && !std::filesystem::is_directory(opt_cwd))
             {
-                return {SOCKET_INVALID, std::format("no such directory '{}'", opt_cwd.string())};
+                return {SOCKET_INVALID, fmt::format("no such directory '{}'", opt_cwd.string())};
             }
 
             // last argument is the TARGET
@@ -1857,7 +1865,7 @@ run_ipc_command(const std::string_view socket_commands_json)
                 if (!target_dir.string().starts_with('/'))
                 {
                     return {SOCKET_INVALID,
-                            std::format("TARGET must be absolute '{}'", target_dir.string())};
+                            fmt::format("TARGET must be absolute '{}'", target_dir.string())};
                 }
             }
 
@@ -1873,7 +1881,7 @@ run_ipc_command(const std::string_view socket_commands_json)
                     if (opt_cwd.empty())
                     {
                         return {SOCKET_INVALID,
-                                std::format("relative path '{}' requires option --dir DIR", file)};
+                                fmt::format("relative path '{}' requires option --dir DIR", file)};
                     }
                     file_list.emplace_back(opt_cwd / file);
                 }
@@ -1888,7 +1896,7 @@ run_ipc_command(const std::string_view socket_commands_json)
             if (file_list.empty() || (property != "delete" && property != "trash"))
             {
                 return {SOCKET_INVALID,
-                        std::format("task type {} requires FILE argument(s)", data[i])};
+                        fmt::format("task type {} requires FILE argument(s)", data[i])};
             }
             vfs::file_task::type task_type;
             if (property == "copy")
@@ -1913,7 +1921,7 @@ run_ipc_command(const std::string_view socket_commands_json)
             }
             else
             { // failsafe
-                return {SOCKET_FAILURE, std::format("invalid task type '{}'", property)};
+                return {SOCKET_FAILURE, fmt::format("invalid task type '{}'", property)};
             }
 
 #if (GTK_MAJOR_VERSION == 4)
@@ -1929,7 +1937,7 @@ run_ipc_command(const std::string_view socket_commands_json)
                                                    file_browser->task_view());
             ptk_file_task_run(ptask);
             return {SOCKET_SUCCESS,
-                    std::format("# Note: $new_task_id not valid until approx one "
+                    fmt::format("# Note: $new_task_id not valid until approx one "
                                 "half second after task  start\nnew_task_window={}\n"
                                 "new_task_id={}",
                                 fmt::ptr(main_window),
@@ -1937,7 +1945,7 @@ run_ipc_command(const std::string_view socket_commands_json)
         }
         else
         {
-            return {SOCKET_INVALID, std::format("invalid task type '{}'", property)};
+            return {SOCKET_INVALID, fmt::format("invalid task type '{}'", property)};
         }
     }
     else if (command == "emit-key")
@@ -1957,7 +1965,7 @@ run_ipc_command(const std::string_view socket_commands_json)
         else
         {
             gdk_event_free((GdkEvent*)event);
-            return {SOCKET_INVALID, std::format("invalid keycode '{}'", data[i])};
+            return {SOCKET_INVALID, fmt::format("invalid keycode '{}'", data[i])};
         }
         gdk_event_free((GdkEvent*)event);
 #else
@@ -1972,7 +1980,7 @@ run_ipc_command(const std::string_view socket_commands_json)
         if (!set)
         {
             return {SOCKET_INVALID,
-                    std::format("custom command or submenu '{}' not found", data[i])};
+                    fmt::format("custom command or submenu '{}' not found", data[i])};
         }
         if (set->menu_style == xset::menu::submenu)
         {
@@ -2002,7 +2010,7 @@ run_ipc_command(const std::string_view socket_commands_json)
         xset_t set = xset_is(data[i]);
         if (!set)
         {
-            return {SOCKET_INVALID, std::format("invalid event type '{}'", data[i])};
+            return {SOCKET_INVALID, fmt::format("invalid event type '{}'", data[i])};
         }
         // build command
         std::string str = (command == "replace-event" ? "*" : "");
@@ -2010,7 +2018,7 @@ run_ipc_command(const std::string_view socket_commands_json)
         const std::vector<std::string> event_cmds = {data.cbegin() + 1, data.cend()};
         for (const std::string_view event_cmd : event_cmds)
         {
-            str.append(std::format(" {}", event_cmd));
+            str.append(fmt::format(" {}", event_cmd));
         }
         str = ztd::strip(str); // can not have any extra whitespace
         // modify list
@@ -2021,7 +2029,7 @@ run_ipc_command(const std::string_view socket_commands_json)
             if (!l)
             {
                 // remove replace event
-                const std::string str2 = std::format("*{}", str);
+                const std::string str2 = fmt::format("*{}", str);
                 l = g_list_find_custom((GList*)set->ob2_data,
                                        str2.data(),
                                        (GCompareFunc)ztd::compare);
@@ -2048,7 +2056,7 @@ run_ipc_command(const std::string_view socket_commands_json)
     }
     else
     {
-        return {SOCKET_FAILURE, std::format("invalid socket method '{}'", command)};
+        return {SOCKET_FAILURE, fmt::format("invalid socket method '{}'", command)};
     }
     return {SOCKET_SUCCESS, ""};
 }

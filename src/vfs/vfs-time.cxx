@@ -16,7 +16,7 @@
 #include <string>
 
 #if 0
-#include <format>
+#include <fmt/core.h>
 
 #include <chrono>
 #endif
@@ -58,7 +58,7 @@ vfs_create_display_date(const std::time_t time) noexcept
     const auto seconds =
         std::chrono::duration_cast<std::chrono::seconds>(midnight - hours - minutes);
 
-    return std::format("{0:%Y-%m-%d} {1:%H}:{2:%M}:{3:%S}", date, hours, minutes, seconds);
+    return fmt::format("{0:%Y-%m-%d} {1:%H}:{2:%M}:{3:%S}", date, hours, minutes, seconds);
 }
 
 #endif

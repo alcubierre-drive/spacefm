@@ -265,7 +265,7 @@ vfs::mime_type::icon(bool big) noexcept
             if (!icon)
             {
                 const auto mime = ztd::partition(this->type_, "/")[0];
-                const std::string generic_icon_name = std::format("{}-x-generic", mime);
+                const std::string generic_icon_name = fmt::format("{}-x-generic", mime);
                 icon = vfs_load_icon(generic_icon_name, icon_size);
             }
         }

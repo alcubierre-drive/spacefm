@@ -18,7 +18,7 @@
 
 #include <string>
 
-#include <format>
+#include <fmt/core.h>
 
 #include <filesystem>
 
@@ -154,8 +154,12 @@ thumbnailer_thread(vfs::async_task* task, const std::shared_ptr<vfs::thumbnailer
         loader->queue.pop_front();
 
         bool need_update = false;
-        for (const auto [index, value] : std::views::enumerate(req->n_requests))
+        /* for (const auto [index, value] : std::views::enumerate(req->n_requests)) */
+        /* { */
+        for (auto iter=req->n_requests.begin(); iter!=req->n_requests.end(); iter++)
         {
+            auto index = std::distance(req->n_requests.begin(), iter);
+            auto& value = *iter;
             if (value.second == 0)
             {
                 continue;
@@ -220,7 +224,7 @@ GdkPixbuf*
 vfs_thumbnail_load(const std::shared_ptr<vfs::file>& file, i32 thumb_size)
 {
     const std::string file_hash = ztd::compute_checksum(ztd::checksum::type::md5, file->uri());
-    const std::string filename = std::format("{}.png", file_hash);
+    const std::string filename = fmt::format("{}.png", file_hash);
 
     const auto thumbnail_file = vfs::user_dirs->cache_dir() / "thumbnails/normal" / filename;
 
@@ -290,7 +294,7 @@ vfs_thumbnail_load(const std::shared_ptr<vfs::file>& file, i32 thumb_size)
         }
         else
         {
-            const auto command = std::format("ffmpegthumbnailer -s {} -i {} -o {}",
+            const auto command = fmt::format("ffmpegthumbnailer -s {} -i {} -o {}",
                                              thumb_size,
                                              ztd::shell::quote(file->path().string()),
                                              ztd::shell::quote(thumbnail_file.string()));

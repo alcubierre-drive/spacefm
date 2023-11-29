@@ -79,7 +79,7 @@ vfs::monitor::monitor(const std::filesystem::path& path, const callback_t& callb
                                               IN_MOVE | IN_MOVE_SELF | IN_UNMOUNT | IN_ATTRIB);
     if (this->inotify_wd_ == -1)
     {
-        throw std::runtime_error(std::format("Failed to add inotify watch on '{}' ({})",
+        throw std::runtime_error(fmt::format("Failed to add inotify watch on '{}' ({})",
                                              real_path.string(),
                                              this->path_.string()));
     }

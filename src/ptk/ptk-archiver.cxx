@@ -16,7 +16,7 @@
 #include <string>
 #include <string_view>
 
-#include <format>
+#include <fmt/core.h>
 
 #include <span>
 
@@ -70,7 +70,7 @@ ptk_archiver_create(PtkFileBrowser* file_browser,
 
     const auto shell_file_list = archiver_create_shell_file_list(sel_files);
 
-    const auto command = std::format("file-roller --add {}", shell_file_list);
+    const auto command = fmt::format("file-roller --add {}", shell_file_list);
     ztd::logger::info("COMMAND={}", command);
     Glib::spawn_command_line_async(command);
 }
@@ -96,7 +96,7 @@ ptk_archiver_extract(PtkFileBrowser* file_browser,
     else
     {
         command.append(
-            std::format("--extract-to={} ", ztd::shell::quote(file_browser->cwd().string())));
+            fmt::format("--extract-to={} ", ztd::shell::quote(file_browser->cwd().string())));
     }
     command.append(shell_file_list);
 
@@ -117,7 +117,7 @@ ptk_archiver_open(PtkFileBrowser* file_browser,
 
     const auto shell_file_list = archiver_create_shell_file_list(sel_files);
 
-    const auto command = std::format("file-roller {}", shell_file_list);
+    const auto command = fmt::format("file-roller {}", shell_file_list);
     ztd::logger::info("COMMAND={}", command);
     Glib::spawn_command_line_async(command);
 }

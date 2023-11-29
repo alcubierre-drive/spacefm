@@ -16,7 +16,7 @@
 #include <string>
 #include <string_view>
 
-#include <format>
+#include <fmt/core.h>
 
 #include <filesystem>
 
@@ -195,14 +195,14 @@ on_update_labels(const std::shared_ptr<properties_dialog_data>& data)
     }
 
     const auto size_str =
-        std::format("{} ( {:L} bytes )", vfs_file_size_format(data->total_size), data->total_size);
+        fmt::format("{} ( {:L} bytes )", vfs_file_size_format(data->total_size), data->total_size);
     if (data->cancel)
     {
         return true;
     }
     gtk_label_set_text(data->total_size_label, size_str.data());
 
-    const auto disk_str = std::format("{} ( {:L} bytes )",
+    const auto disk_str = fmt::format("{} ( {:L} bytes )",
                                       vfs_file_size_format(data->size_on_disk),
                                       data->size_on_disk);
     if (data->cancel)
@@ -212,7 +212,7 @@ on_update_labels(const std::shared_ptr<properties_dialog_data>& data)
     gtk_label_set_text(data->size_on_disk_label, disk_str.data());
 
     const auto count_str =
-        std::format("{:L} files, {:L} directories", data->total_count_file, data->total_count_dir);
+        fmt::format("{:L} files, {:L} directories", data->total_count_file, data->total_count_dir);
     if (data->cancel)
     {
         return true;
@@ -463,7 +463,7 @@ init_file_info_tab(const std::shared_ptr<properties_dialog_data>& data,
     if (same_type)
     {
         const auto mime = file->mime_type();
-        const auto file_type = std::format("{}\n{}", mime->description(), mime->type());
+        const auto file_type = fmt::format("{}\n{}", mime->description(), mime->type());
         GtkLabel* type_label = GTK_LABEL(gtk_label_new(file_type.data()));
         gtk_label_set_xalign(type_label, 0.0);
         gtk_label_set_yalign(type_label, 0.5);
@@ -500,11 +500,11 @@ init_file_info_tab(const std::shared_ptr<properties_dialog_data>& data,
         need_calc_size = false;
 
         const std::string size =
-            std::format("{}  ( {:L} bytes )", file->display_size(), file->size());
+            fmt::format("{}  ( {:L} bytes )", file->display_size(), file->size());
         gtk_label_set_text(data->total_size_label, size.data());
 
         const std::string on_disk =
-            std::format("{}  ( {:L} bytes )", file->display_size_on_disk(), file->size_on_disk());
+            fmt::format("{}  ( {:L} bytes )", file->display_size_on_disk(), file->size_on_disk());
         gtk_label_set_text(data->size_on_disk_label, on_disk.data());
 
         gtk_label_set_text(data->count_label, "1 file");

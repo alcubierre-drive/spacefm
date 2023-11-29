@@ -16,7 +16,7 @@
 #include <string>
 #include <string_view>
 
-#include <format>
+#include <fmt/core.h>
 
 #include <optional>
 
@@ -37,7 +37,7 @@ socket_server_thread()
     zmqpp::context context;
     zmqpp::socket server(context, zmqpp::socket_type::pair);
 
-    server.bind(std::format("tcp://*:{}", ZMQ_PORT));
+    server.bind(fmt::format("tcp://*:{}", ZMQ_PORT));
 
     while (true)
     {

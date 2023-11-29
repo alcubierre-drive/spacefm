@@ -17,7 +17,7 @@
 #include <string>
 #include <string_view>
 
-#include <format>
+#include <fmt/core.h>
 
 #include <filesystem>
 
@@ -787,7 +787,7 @@ MainWindow::show_panels() noexcept
                     // set->ob1 is preload path
 
                     const std::string tabs_add =
-                        std::format("{}{}{}",
+                        fmt::format("{}{}{}",
                                     set->s && app_settings.load_saved_tabs() ? set->s.value() : "",
                                     set->ob1 ? CONFIG_FILE_TABS_DELIM : "",
                                     set->ob1 ? set->ob1 : "");
@@ -2416,13 +2416,13 @@ MainWindow::update_status_bar(PtkFileBrowser* file_browser) const noexcept
         // calc total space
         const std::string disk_size = vfs_file_size_format(fs_stat.frsize() * fs_stat.blocks());
 
-        statusbar_txt.append(std::format(" {} / {}   ", free_size, disk_size));
+        statusbar_txt.append(fmt::format(" {} / {}   ", free_size, disk_size));
     }
 
     // Show Reading... while sill loading
     if (file_browser->is_busy())
     {
-        statusbar_txt.append(std::format("Reading {} ...", file_browser->cwd().string()));
+        statusbar_txt.append(fmt::format("Reading {} ...", file_browser->cwd().string()));
         gtk_statusbar_pop(file_browser->statusbar, 0);
         gtk_statusbar_push(file_browser->statusbar, 0, statusbar_txt.data());
         return;
@@ -2447,7 +2447,7 @@ MainWindow::update_status_bar(PtkFileBrowser* file_browser) const noexcept
         const std::string disk_size = vfs_file_size_format(total_on_disk_size);
 
         statusbar_txt.append(
-            std::format("{:L} / {:L} ({} / {})", num_sel, num_vis, file_size, disk_size));
+            fmt::format("{:L} / {:L} ({} / {})", num_sel, num_vis, file_size, disk_size));
 
         if (num_sel == 1)
         // display file name or symlink info in status bar if one file selected
@@ -2480,12 +2480,12 @@ MainWindow::update_status_bar(PtkFileBrowser* file_browser) const noexcept
                     {
                         if (std::filesystem::exists(target_path))
                         {
-                            statusbar_txt.append(std::format("  Link -> {}/", target.string()));
+                            statusbar_txt.append(fmt::format("  Link -> {}/", target.string()));
                         }
                         else
                         {
                             statusbar_txt.append(
-                                std::format("  !Link -> {}/ (missing)", target.string()));
+                                fmt::format("  !Link -> {}/ (missing)", target.string()));
                         }
                     }
                     else
@@ -2495,23 +2495,23 @@ MainWindow::update_status_bar(PtkFileBrowser* file_browser) const noexcept
                         {
                             const std::string lsize = vfs_file_size_format(results.size());
                             statusbar_txt.append(
-                                std::format("  Link -> {} ({})", target.string(), lsize));
+                                fmt::format("  Link -> {} ({})", target.string(), lsize));
                         }
                         else
                         {
                             statusbar_txt.append(
-                                std::format("  !Link -> {} (missing)", target.string()));
+                                fmt::format("  !Link -> {} (missing)", target.string()));
                         }
                     }
                 }
                 else
                 {
-                    statusbar_txt.append(std::format("  !Link -> (error reading target)"));
+                    statusbar_txt.append(fmt::format("  !Link -> (error reading target)"));
                 }
             }
             else
             {
-                statusbar_txt.append(std::format("  {}", file->name()));
+                statusbar_txt.append(fmt::format("  {}", file->name()));
             }
         }
         else
@@ -2563,31 +2563,31 @@ MainWindow::update_status_bar(PtkFileBrowser* file_browser) const noexcept
 
             if (count_dir)
             {
-                statusbar_txt.append(std::format("  Directories ({:L})", count_dir));
+                statusbar_txt.append(fmt::format("  Directories ({:L})", count_dir));
             }
             if (count_file)
             {
-                statusbar_txt.append(std::format("  Files ({:L})", count_file));
+                statusbar_txt.append(fmt::format("  Files ({:L})", count_file));
             }
             if (count_symlink)
             {
-                statusbar_txt.append(std::format("  Symlinks ({:L})", count_symlink));
+                statusbar_txt.append(fmt::format("  Symlinks ({:L})", count_symlink));
             }
             if (count_socket)
             {
-                statusbar_txt.append(std::format("  Sockets ({:L})", count_socket));
+                statusbar_txt.append(fmt::format("  Sockets ({:L})", count_socket));
             }
             if (count_pipe)
             {
-                statusbar_txt.append(std::format("  Named Pipes ({:L})", count_pipe));
+                statusbar_txt.append(fmt::format("  Named Pipes ({:L})", count_pipe));
             }
             if (count_block)
             {
-                statusbar_txt.append(std::format("  Block Devices ({:L})", count_block));
+                statusbar_txt.append(fmt::format("  Block Devices ({:L})", count_block));
             }
             if (count_char)
             {
-                statusbar_txt.append(std::format("  Character Devices ({:L})", count_char));
+                statusbar_txt.append(fmt::format("  Character Devices ({:L})", count_char));
             }
         }
     }
@@ -2615,7 +2615,7 @@ MainWindow::update_status_bar(PtkFileBrowser* file_browser) const noexcept
         const u32 num_hidx = file_browser->dir_ ? file_browser->dir_->hidden_files() : 0;
         if (num_hid || num_hidx)
         {
-            statusbar_txt.append(std::format("{:L} visible ({:L} hidden)  ({} / {})",
+            statusbar_txt.append(fmt::format("{:L} visible ({:L} hidden)  ({} / {})",
                                              num_vis,
                                              num_hid,
                                              file_size,
@@ -2623,7 +2623,7 @@ MainWindow::update_status_bar(PtkFileBrowser* file_browser) const noexcept
         }
         else
         {
-            statusbar_txt.append(std::format("{:L} {}  ({} / {})",
+            statusbar_txt.append(fmt::format("{:L} {}  ({} / {})",
                                              num_vis,
                                              num_vis == 1 ? "item" : "items",
                                              file_size,
@@ -2634,11 +2634,11 @@ MainWindow::update_status_bar(PtkFileBrowser* file_browser) const noexcept
         if (std::filesystem::is_symlink(cwd))
         {
             const auto canon = std::filesystem::read_symlink(cwd);
-            statusbar_txt.append(std::format("  {} -> {}", cwd.string(), canon.string()));
+            statusbar_txt.append(fmt::format("  {} -> {}", cwd.string(), canon.string()));
         }
         else
         {
-            statusbar_txt.append(std::format("  {}", cwd.string()));
+            statusbar_txt.append(fmt::format("  {}", cwd.string()));
         }
     }
 
@@ -2784,7 +2784,7 @@ on_main_window_keypress(MainWindow* main_window, GdkEvent* event, void* user_dat
                     if (browser)
                     {
                         const std::string new_set_name =
-                            std::format("panel{}_{}",
+                            fmt::format("panel{}_{}",
                                         browser->panel(),
                                         shared_key_set->name.data() + 6);
                         shared_key_set = xset_get(new_set_name);
@@ -3144,30 +3144,30 @@ main_write_exports(const std::shared_ptr<vfs::file_task>& vtask, const std::stri
 
         // cwd
         const auto& cwd = a_browser->cwd();
-        buf.append(std::format("set fm_pwd_panel[{}] {}\n", p, ztd::shell::quote(cwd.string())));
-        buf.append(std::format("set fm_tab_panel[{}] {}\n", p, current_page + 1));
+        buf.append(fmt::format("set fm_pwd_panel[{}] {}\n", p, ztd::shell::quote(cwd.string())));
+        buf.append(fmt::format("set fm_tab_panel[{}] {}\n", p, current_page + 1));
 
         // selected files
         const auto selected_files = a_browser->selected_files();
         if (!selected_files.empty())
         {
             // create fish array
-            buf.append(std::format("set fm_panel{}_files (echo ", p));
+            buf.append(fmt::format("set fm_panel{}_files (echo ", p));
             for (const auto& file : selected_files)
             {
-                buf.append(std::format("{} ", ztd::shell::quote(file->path().string())));
+                buf.append(fmt::format("{} ", ztd::shell::quote(file->path().string())));
             }
-            buf.append(std::format(")\n"));
+            buf.append(fmt::format(")\n"));
 
             if (file_browser == a_browser)
             {
                 // create fish array
-                buf.append(std::format("set fm_filenames (echo "));
+                buf.append(fmt::format("set fm_filenames (echo "));
                 for (const auto& file : selected_files)
                 {
-                    buf.append(std::format("{} ", ztd::shell::quote(file->name())));
+                    buf.append(fmt::format("{} ", ztd::shell::quote(file->name())));
                 }
-                buf.append(std::format(")\n"));
+                buf.append(fmt::format(")\n"));
             }
         }
 
@@ -3180,33 +3180,33 @@ main_write_exports(const std::shared_ptr<vfs::file_task>& vtask, const std::stri
                 if (file_browser == a_browser)
                 {
                     // clang-format off
-                    buf.append(std::format("set fm_device {}\n", ztd::shell::quote(vol->device_file())));
-                    buf.append(std::format("set fm_device_udi {}\n", ztd::shell::quote(vol->udi())));
-                    buf.append(std::format("set fm_device_mount_point {}\n", ztd::shell::quote(vol->mount_point())));
-                    buf.append(std::format("set fm_device_label {}\n", ztd::shell::quote(vol->label())));
-                    buf.append(std::format("set fm_device_fstype {}\n", ztd::shell::quote(vol->fstype())));
-                    buf.append(std::format("set fm_device_size {}\n", vol->size()));
-                    buf.append(std::format("set fm_device_display_name {}\n", ztd::shell::quote(vol->display_name())));
-                    buf.append(std::format("set fm_device_icon {}\n", ztd::shell::quote(vol->icon())));
-                    buf.append(std::format("set fm_device_is_mounted {}\n", vol->is_mounted() ? 1 : 0));
-                    buf.append(std::format("set fm_device_is_optical {}\n", vol->is_optical() ? 1 : 0));
-                    buf.append(std::format("set fm_device_is_removable {}\n", vol->is_removable() ? 1 : 0));
-                    buf.append(std::format("set fm_device_is_mountable {}\n", vol->is_mountable() ? 1 : 0));
+                    buf.append(fmt::format("set fm_device {}\n", ztd::shell::quote(vol->device_file())));
+                    buf.append(fmt::format("set fm_device_udi {}\n", ztd::shell::quote(vol->udi())));
+                    buf.append(fmt::format("set fm_device_mount_point {}\n", ztd::shell::quote(vol->mount_point())));
+                    buf.append(fmt::format("set fm_device_label {}\n", ztd::shell::quote(vol->label())));
+                    buf.append(fmt::format("set fm_device_fstype {}\n", ztd::shell::quote(vol->fstype())));
+                    buf.append(fmt::format("set fm_device_size {}\n", vol->size()));
+                    buf.append(fmt::format("set fm_device_display_name {}\n", ztd::shell::quote(vol->display_name())));
+                    buf.append(fmt::format("set fm_device_icon {}\n", ztd::shell::quote(vol->icon())));
+                    buf.append(fmt::format("set fm_device_is_mounted {}\n", vol->is_mounted() ? 1 : 0));
+                    buf.append(fmt::format("set fm_device_is_optical {}\n", vol->is_optical() ? 1 : 0));
+                    buf.append(fmt::format("set fm_device_is_removable {}\n", vol->is_removable() ? 1 : 0));
+                    buf.append(fmt::format("set fm_device_is_mountable {}\n", vol->is_mountable() ? 1 : 0));
                     // clang-format on
                 }
                 // clang-format off
-                buf.append(std::format("set fm_panel{}_device {}\n", p, ztd::shell::quote(vol->device_file())));
-                buf.append(std::format("set fm_panel{}_device_udi {}\n", p, ztd::shell::quote(vol->udi())));
-                buf.append(std::format("set fm_panel{}_device_mount_point {}\n", p, ztd::shell::quote(vol->mount_point())));
-                buf.append(std::format("set fm_panel{}_device_label {}\n", p, ztd::shell::quote(vol->label())));
-                buf.append(std::format("set fm_panel{}_device_fstype {}\n", p, ztd::shell::quote(vol->fstype())));
-                buf.append(std::format("set fm_panel{}_device_size {}\n", p, vol->size()));
-                buf.append(std::format("set fm_panel{}_device_display_name {}\n", p, ztd::shell::quote(vol->display_name())));
-                buf.append(std::format("set fm_panel{}_device_icon {}\n", p, ztd::shell::quote(vol->icon())));
-                buf.append(std::format("set fm_panel{}_device_is_mounted {}\n", p, vol->is_mounted() ? 1 : 0));
-                buf.append(std::format("set fm_panel{}_device_is_optical {}\n", p, vol->is_optical() ? 1 : 0));
-                buf.append(std::format("set fm_panel{}_device_is_removable{}\n", p, vol->is_removable() ? 1 : 0));
-                buf.append(std::format("set fm_panel{}_device_is_mountable{}\n", p, vol->is_mountable() ? 1 : 0));
+                buf.append(fmt::format("set fm_panel{}_device {}\n", p, ztd::shell::quote(vol->device_file())));
+                buf.append(fmt::format("set fm_panel{}_device_udi {}\n", p, ztd::shell::quote(vol->udi())));
+                buf.append(fmt::format("set fm_panel{}_device_mount_point {}\n", p, ztd::shell::quote(vol->mount_point())));
+                buf.append(fmt::format("set fm_panel{}_device_label {}\n", p, ztd::shell::quote(vol->label())));
+                buf.append(fmt::format("set fm_panel{}_device_fstype {}\n", p, ztd::shell::quote(vol->fstype())));
+                buf.append(fmt::format("set fm_panel{}_device_size {}\n", p, vol->size()));
+                buf.append(fmt::format("set fm_panel{}_device_display_name {}\n", p, ztd::shell::quote(vol->display_name())));
+                buf.append(fmt::format("set fm_panel{}_device_icon {}\n", p, ztd::shell::quote(vol->icon())));
+                buf.append(fmt::format("set fm_panel{}_device_is_mounted {}\n", p, vol->is_mounted() ? 1 : 0));
+                buf.append(fmt::format("set fm_panel{}_device_is_optical {}\n", p, vol->is_optical() ? 1 : 0));
+                buf.append(fmt::format("set fm_panel{}_device_is_removable{}\n", p, vol->is_removable() ? 1 : 0));
+                buf.append(fmt::format("set fm_panel{}_device_is_mountable{}\n", p, vol->is_mountable() ? 1 : 0));
                 // clang-format on
             }
         }
@@ -3218,63 +3218,63 @@ main_write_exports(const std::shared_ptr<vfs::file_task>& vtask, const std::stri
             PtkFileBrowser* t_browser = PTK_FILE_BROWSER_REINTERPRET(
                 gtk_notebook_get_nth_page(main_window->get_panel_notebook(p), i));
             const std::string path = ztd::shell::quote(t_browser->cwd().string());
-            buf.append(std::format("set fm_pwd_panel{}_tab[{}] {}\n", p, i + 1, path));
+            buf.append(fmt::format("set fm_pwd_panel{}_tab[{}] {}\n", p, i + 1, path));
             if (p == file_browser->panel())
             {
-                buf.append(std::format("set fm_pwd_tab[{}] {}\n", i + 1, path));
+                buf.append(fmt::format("set fm_pwd_tab[{}] {}\n", i + 1, path));
             }
             if (file_browser == t_browser)
             {
                 // my browser
-                buf.append(std::format("set fm_pwd {}\n", path));
-                buf.append(std::format("set fm_panel {}\n", p));
-                buf.append(std::format("set fm_tab {}\n", i + 1));
+                buf.append(fmt::format("set fm_pwd {}\n", path));
+                buf.append(fmt::format("set fm_panel {}\n", p));
+                buf.append(fmt::format("set fm_tab {}\n", i + 1));
             }
         }
     }
 
     // my selected files
     buf.append("\n");
-    buf.append(std::format("set fm_files (echo $fm_panel{}_files)\n", file_browser->panel()));
-    buf.append(std::format("set fm_file $fm_panel{}_files[1]\n", file_browser->panel()));
-    buf.append(std::format("set fm_filename $fm_filenames[1]\n"));
+    buf.append(fmt::format("set fm_files (echo $fm_panel{}_files)\n", file_browser->panel()));
+    buf.append(fmt::format("set fm_file $fm_panel{}_files[1]\n", file_browser->panel()));
+    buf.append(fmt::format("set fm_filename $fm_filenames[1]\n"));
     buf.append("\n");
 
     // user
-    buf.append(std::format("set fm_user {}\n", ztd::shell::quote(Glib::get_user_name())));
+    buf.append(fmt::format("set fm_user {}\n", ztd::shell::quote(Glib::get_user_name())));
 
     // variable value
-    buf.append(std::format("set fm_value {}\n", ztd::shell::quote(value)));
+    buf.append(fmt::format("set fm_value {}\n", ztd::shell::quote(value)));
     if (vtask->exec_ptask)
     {
-        buf.append(std::format("set fm_my_task {}\n", fmt::ptr(vtask->exec_ptask)));
-        buf.append(std::format("set fm_my_task_id {}\n", fmt::ptr(vtask->exec_ptask)));
+        buf.append(fmt::format("set fm_my_task {}\n", fmt::ptr(vtask->exec_ptask)));
+        buf.append(fmt::format("set fm_my_task_id {}\n", fmt::ptr(vtask->exec_ptask)));
     }
-    buf.append(std::format("set fm_my_window {}\n", fmt::ptr(main_window)));
-    buf.append(std::format("set fm_my_window_id {}\n", fmt::ptr(main_window)));
+    buf.append(fmt::format("set fm_my_window {}\n", fmt::ptr(main_window)));
+    buf.append(fmt::format("set fm_my_window_id {}\n", fmt::ptr(main_window)));
 
     // utils
-    buf.append(std::format("set fm_editor {}\n",
+    buf.append(fmt::format("set fm_editor {}\n",
                            ztd::shell::quote(xset_get_s(xset::name::editor).value_or(""))));
-    buf.append(std::format("set fm_editor_terminal {}\n", xset_get_b(xset::name::editor) ? 1 : 0));
+    buf.append(fmt::format("set fm_editor_terminal {}\n", xset_get_b(xset::name::editor) ? 1 : 0));
 
     // set
     if (set)
     {
         // cmd_dir
         const auto path = vfs::user_dirs->program_config_dir() / "scripts" / set->name;
-        buf.append(std::format("set fm_cmd_dir {}\n", ztd::shell::quote(path.string())));
+        buf.append(fmt::format("set fm_cmd_dir {}\n", ztd::shell::quote(path.string())));
 
         // cmd_name
         if (set->menu_label)
         {
             buf.append(
-                std::format("set fm_cmd_name {}\n", ztd::shell::quote(set->menu_label.value())));
+                fmt::format("set fm_cmd_name {}\n", ztd::shell::quote(set->menu_label.value())));
         }
     }
 
     // tmp
-    buf.append(std::format("set fm_tmp_dir {}\n",
+    buf.append(fmt::format("set fm_tmp_dir {}\n",
                            ztd::shell::quote(vfs::user_dirs->program_tmp_dir().string())));
 
     // tasks
@@ -3292,7 +3292,7 @@ main_write_exports(const std::shared_ptr<vfs::file_task>& vtask, const std::stri
         };
 
         buf.append("\n");
-        buf.append(std::format("set fm_task_type {}\n", job_titles.at(ptask->task->type_)));
+        buf.append(fmt::format("set fm_task_type {}\n", job_titles.at(ptask->task->type_)));
 
         const auto dest_dir = ptask->task->dest_dir.value_or("");
         const auto current_file = ptask->task->current_file.value_or("");
@@ -3301,26 +3301,26 @@ main_write_exports(const std::shared_ptr<vfs::file_task>& vtask, const std::stri
         if (ptask->task->type_ == vfs::file_task::type::exec)
         {
             // clang-format off
-            buf.append(std::format("set fm_task_pwd {}\n", ztd::shell::quote(dest_dir.string())));
-            buf.append(std::format("set fm_task_name {}\n", ztd::shell::quote(current_file.string())));
-            buf.append(std::format("set fm_task_command {}\n", ztd::shell::quote(ptask->task->exec_command)));
-            buf.append(std::format("set fm_task_icon {}\n", ztd::shell::quote(ptask->task->exec_icon)));
-            buf.append(std::format("set fm_task_pid {}\n", ptask->task->exec_pid));
+            buf.append(fmt::format("set fm_task_pwd {}\n", ztd::shell::quote(dest_dir.string())));
+            buf.append(fmt::format("set fm_task_name {}\n", ztd::shell::quote(current_file.string())));
+            buf.append(fmt::format("set fm_task_command {}\n", ztd::shell::quote(ptask->task->exec_command)));
+            buf.append(fmt::format("set fm_task_icon {}\n", ztd::shell::quote(ptask->task->exec_icon)));
+            buf.append(fmt::format("set fm_task_pid {}\n", ptask->task->exec_pid));
             // clang-format on
         }
         else
         {
             // clang-format off
-            buf.append(std::format("set fm_task_dest_dir {}\n", ztd::shell::quote(dest_dir.string())));
-            buf.append(std::format("set fm_task_current_src_file {}\n", ztd::shell::quote(current_file.string())));
-            buf.append(std::format("set fm_task_current_dest_file {}\n", ztd::shell::quote(current_dest.string())));
+            buf.append(fmt::format("set fm_task_dest_dir {}\n", ztd::shell::quote(dest_dir.string())));
+            buf.append(fmt::format("set fm_task_current_src_file {}\n", ztd::shell::quote(current_file.string())));
+            buf.append(fmt::format("set fm_task_current_dest_file {}\n", ztd::shell::quote(current_dest.string())));
             // clang-format on
         }
-        buf.append(std::format("set fm_task_id {}\n", fmt::ptr(ptask)));
+        buf.append(fmt::format("set fm_task_id {}\n", fmt::ptr(ptask)));
         // if (ptask->task_view && (main_window = get_task_view_window(ptask->task_view)))
         // {
-        //     buf.append(std::format("set fm_task_window {}\n", fmt::ptr(main_window)));
-        //     buf.append(std::format("set fm_task_window_id {}\n", fmt::ptr(main_window)));
+        //     buf.append(fmt::format("set fm_task_window {}\n", fmt::ptr(main_window)));
+        //     buf.append(fmt::format("set fm_task_window_id {}\n", fmt::ptr(main_window)));
         // }
     }
 

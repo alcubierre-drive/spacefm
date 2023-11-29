@@ -16,7 +16,7 @@
 #include <string>
 #include <string_view>
 
-#include <format>
+#include <fmt/core.h>
 
 #include <cassert>
 
@@ -47,7 +47,7 @@ xset_custom_new_name()
 
     while (true)
     {
-        setname = std::format("cstm_{}", ztd::randhex());
+        setname = fmt::format("cstm_{}", ztd::randhex());
         if (!xset_is(setname))
         {
             const auto path1 = vfs::user_dirs->program_config_dir() / "scripts" / setname;

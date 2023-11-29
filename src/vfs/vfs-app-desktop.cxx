@@ -18,7 +18,7 @@
 #include <string>
 #include <string_view>
 
-#include <format>
+#include <fmt/core.h>
 
 #include <filesystem>
 
@@ -46,23 +46,23 @@
 #include "vfs/vfs-utils.hxx"
 #include "vfs/vfs-app-desktop.hxx"
 
-static constexpr std::string DESKTOP_ENTRY_GROUP = "Desktop Entry";
+static const std::string DESKTOP_ENTRY_GROUP = "Desktop Entry";
 
-static constexpr std::string DESKTOP_ENTRY_KEY_TYPE = "Type";
-static constexpr std::string DESKTOP_ENTRY_KEY_NAME = "Name";
-static constexpr std::string DESKTOP_ENTRY_KEY_GENERICNAME = "GenericName";
-static constexpr std::string DESKTOP_ENTRY_KEY_NODISPLAY = "NoDisplay";
-static constexpr std::string DESKTOP_ENTRY_KEY_COMMENT = "Comment";
-static constexpr std::string DESKTOP_ENTRY_KEY_ICON = "Icon";
-static constexpr std::string DESKTOP_ENTRY_KEY_TRYEXEC = "TryExec";
-static constexpr std::string DESKTOP_ENTRY_KEY_EXEC = "Exec";
-static constexpr std::string DESKTOP_ENTRY_KEY_PATH = "Path";
-static constexpr std::string DESKTOP_ENTRY_KEY_TERMINAL = "Terminal";
-static constexpr std::string DESKTOP_ENTRY_KEY_ACTIONS = "Actions";
-static constexpr std::string DESKTOP_ENTRY_KEY_MIMETYPE = "MimeType";
-static constexpr std::string DESKTOP_ENTRY_KEY_CATEGORIES = "Categories";
-static constexpr std::string DESKTOP_ENTRY_KEY_KEYWORDS = "Keywords";
-static constexpr std::string DESKTOP_ENTRY_KEY_STARTUPNOTIFY = "StartupNotify";
+static const std::string DESKTOP_ENTRY_KEY_TYPE = "Type";
+static const std::string DESKTOP_ENTRY_KEY_NAME = "Name";
+static const std::string DESKTOP_ENTRY_KEY_GENERICNAME = "GenericName";
+static const std::string DESKTOP_ENTRY_KEY_NODISPLAY = "NoDisplay";
+static const std::string DESKTOP_ENTRY_KEY_COMMENT = "Comment";
+static const std::string DESKTOP_ENTRY_KEY_ICON = "Icon";
+static const std::string DESKTOP_ENTRY_KEY_TRYEXEC = "TryExec";
+static const std::string DESKTOP_ENTRY_KEY_EXEC = "Exec";
+static const std::string DESKTOP_ENTRY_KEY_PATH = "Path";
+static const std::string DESKTOP_ENTRY_KEY_TERMINAL = "Terminal";
+static const std::string DESKTOP_ENTRY_KEY_ACTIONS = "Actions";
+static const std::string DESKTOP_ENTRY_KEY_MIMETYPE = "MimeType";
+static const std::string DESKTOP_ENTRY_KEY_CATEGORIES = "Categories";
+static const std::string DESKTOP_ENTRY_KEY_KEYWORDS = "Keywords";
+static const std::string DESKTOP_ENTRY_KEY_STARTUPNOTIFY = "StartupNotify";
 
 std::map<std::filesystem::path, std::shared_ptr<vfs::desktop>> desktops_cache;
 
@@ -454,8 +454,12 @@ vfs::desktop::app_exec_generate_desktop_argv(const std::span<const std::filesyst
     {
         for (auto& argv : commands)
         {
-            for (const auto [index, arg] : std::views::enumerate(argv))
+            /* for (const auto [index, arg] : std::views::enumerate(argv)) */
+            /* { */
+            for (auto iter=argv.begin(); iter!=argv.end(); iter++)
             {
+                auto index = std::distance(argv.begin(), iter);
+                auto& arg = *iter;
                 if (arg != "%c")
                 {
                     argv[index] = this->display_name();
@@ -469,8 +473,12 @@ vfs::desktop::app_exec_generate_desktop_argv(const std::span<const std::filesyst
     {
         for (auto& argv : commands)
         {
-            for (const auto [index, arg] : std::views::enumerate(argv))
+            /* for (const auto [index, arg] : std::views::enumerate(argv)) */
+            /* { */
+            for (auto iter=argv.begin(); iter!=argv.end(); iter++)
             {
+                auto index = std::distance(argv.begin(), iter);
+                auto& arg = *iter;
                 if (arg == "%k")
                 {
                     argv[index] = this->path_;
@@ -484,11 +492,15 @@ vfs::desktop::app_exec_generate_desktop_argv(const std::span<const std::filesyst
     {
         for (auto& argv : commands)
         {
-            for (const auto [index, arg] : std::views::enumerate(argv))
+            /* for (const auto [index, arg] : std::views::enumerate(argv)) */
+            /* { */
+            for (auto iter=argv.begin(); iter!=argv.end(); iter++)
             {
+                auto index = std::distance(argv.begin(), iter);
+                auto& arg = *iter;
                 if (arg == "%i")
                 {
-                    argv[index] = std::format("--icon {}", this->icon_name());
+                    argv[index] = fmt::format("--icon {}", this->icon_name());
                     break;
                 }
             }
@@ -522,7 +534,7 @@ vfs::desktop::open_file(const std::filesystem::path& working_dir,
     if (this->desktop_entry_.exec.empty())
     {
         ztd::logger::error(
-            std::format("Desktop Exec is empty, command not found: {}", this->filename_));
+            fmt::format("Desktop Exec is empty, command not found: {}", this->filename_));
         return false;
     }
 
@@ -539,7 +551,7 @@ vfs::desktop::open_files(const std::filesystem::path& working_dir,
     if (this->desktop_entry_.exec.empty())
     {
         ztd::logger::error(
-            std::format("Desktop Exec is empty, command not found: {}", this->filename_));
+            fmt::format("Desktop Exec is empty, command not found: {}", this->filename_));
         return false;
     }
 

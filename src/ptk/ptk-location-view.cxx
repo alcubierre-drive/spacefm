@@ -19,7 +19,7 @@
 #include <string>
 #include <string_view>
 
-#include <format>
+#include <fmt/core.h>
 
 #include <filesystem>
 
@@ -695,7 +695,7 @@ popup_missing_mount(GtkWidget* view, i32 job)
         GtkMessageType::GTK_MESSAGE_ERROR,
         "Handler Not Found",
         GtkButtonsType::GTK_BUTTONS_OK,
-        std::format("No handler is configured for this device type, or no {} command is set. Add a "
+        fmt::format("No handler is configured for this device type, or no {} command is set. Add a "
                     "handler in Settings|Device Handlers or Protocol Handlers.",
                     cmd));
 }
@@ -738,7 +738,7 @@ on_mount(GtkMenuItem* item, const std::shared_ptr<vfs::volume>& vol, GtkWidget* 
     }
     const auto& mount_command = check_mount_command.value();
 
-    const std::string task_name = std::format("Mount {}", vol->device_file());
+    const std::string task_name = fmt::format("Mount {}", vol->device_file());
     PtkFileTask* ptask =
         ptk_file_exec_new(task_name, view, file_browser ? file_browser->task_view() : nullptr);
     ptask->task->exec_command = mount_command;
@@ -782,7 +782,7 @@ on_umount(GtkMenuItem* item, const std::shared_ptr<vfs::volume>& vol, GtkWidget*
     }
     const auto& unmount_command = check_unmount_command.value();
 
-    const std::string task_name = std::format("Unmount {}", vol->device_file());
+    const std::string task_name = fmt::format("Unmount {}", vol->device_file());
     PtkFileTask* ptask =
         ptk_file_exec_new(task_name, view, file_browser ? file_browser->task_view() : nullptr);
     ptask->task->exec_command = unmount_command;
@@ -828,7 +828,7 @@ on_eject(GtkMenuItem* item, const std::shared_ptr<vfs::volume>& vol, GtkWidget* 
         }
         const auto& unmount_command = check_unmount_command.value();
 
-        const std::string task_name = std::format("Remove {}", vol->device_file());
+        const std::string task_name = fmt::format("Remove {}", vol->device_file());
         PtkFileTask* ptask =
             ptk_file_exec_new(task_name, view, file_browser ? file_browser->task_view() : nullptr);
         ptask->task->exec_command = unmount_command;
@@ -845,8 +845,8 @@ on_eject(GtkMenuItem* item, const std::shared_ptr<vfs::volume>& vol, GtkWidget* 
              (vol->is_optical() || vol->requires_eject()))
     {
         // task
-        const std::string line = std::format("eject {}", vol->device_file());
-        const std::string task_name = std::format("Remove {}", vol->device_file());
+        const std::string line = fmt::format("eject {}", vol->device_file());
+        const std::string task_name = fmt::format("Remove {}", vol->device_file());
         PtkFileTask* ptask =
             ptk_file_exec_new(task_name, view, file_browser ? file_browser->task_view() : nullptr);
         ptask->task->exec_command = line;
@@ -860,7 +860,7 @@ on_eject(GtkMenuItem* item, const std::shared_ptr<vfs::volume>& vol, GtkWidget* 
     {
         // task
         const std::string line = "sync";
-        const std::string task_name = std::format("Remove {}", vol->device_file());
+        const std::string task_name = fmt::format("Remove {}", vol->device_file());
         PtkFileTask* ptask =
             ptk_file_exec_new(task_name, view, file_browser ? file_browser->task_view() : nullptr);
         ptask->task->exec_command = line;
@@ -934,7 +934,7 @@ try_mount(GtkTreeView* view, const std::shared_ptr<vfs::volume>& vol)
     }
     const auto& mount_command = check_mount_command.value();
 
-    const std::string task_name = std::format("Mount {}", vol->device_file());
+    const std::string task_name = fmt::format("Mount {}", vol->device_file());
     PtkFileTask* ptask = ptk_file_exec_new(task_name, GTK_WIDGET(view), file_browser->task_view());
     ptask->task->exec_command = mount_command;
     ptask->task->exec_sync = true;
@@ -1007,7 +1007,7 @@ on_open_tab(GtkMenuItem* item, const std::shared_ptr<vfs::volume>& vol, GtkWidge
         const auto& mount_command = check_mount_command.value();
 
         // task
-        const std::string task_name = std::format("Mount {}", vol->device_file());
+        const std::string task_name = fmt::format("Mount {}", vol->device_file());
         PtkFileTask* ptask = ptk_file_exec_new(task_name, view, file_browser->task_view());
         ptask->task->exec_command = mount_command;
         ptask->task->exec_sync = true;
@@ -1081,7 +1081,7 @@ on_open(GtkMenuItem* item, const std::shared_ptr<vfs::volume>& vol, GtkWidget* v
         const auto& mount_command = check_mount_command.value();
 
         // task
-        const std::string task_name = std::format("Mount {}", vol->device_file());
+        const std::string task_name = fmt::format("Mount {}", vol->device_file());
         PtkFileTask* ptask =
             ptk_file_exec_new(task_name, view, file_browser ? file_browser->task_view() : nullptr);
         ptask->task->exec_command = mount_command;
@@ -1134,7 +1134,7 @@ on_showhide(GtkMenuItem* item, const std::shared_ptr<vfs::volume>& vol, GtkWidge
     {
         const std::string devid = ztd::removeprefix(vol->udi(), "/");
 
-        msg = std::format("{}Currently Selected Device: {}\nVolume Label: {}\nDevice ID: {}",
+        msg = fmt::format("{}Currently Selected Device: {}\nVolume Label: {}\nDevice ID: {}",
                           set->desc.value(),
                           vol->device_file(),
                           vol->label(),
@@ -1172,7 +1172,7 @@ on_automountlist(GtkMenuItem* item, const std::shared_ptr<vfs::volume>& vol, Gtk
     {
         const std::string devid = ztd::removeprefix(vol->udi(), "/");
 
-        msg = std::format("{}Currently Selected Device: {}\nVolume Label: {}\nDevice ID: {}",
+        msg = fmt::format("{}Currently Selected Device: {}\nVolume Label: {}\nDevice ID: {}",
                           set->desc.value(),
                           vol->device_file(),
                           vol->label(),

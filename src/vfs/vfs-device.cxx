@@ -141,6 +141,28 @@ vfs::device::fstype() const noexcept
     return this->fstype_;
 }
 
+struct __contains_fn
+{
+    template<std::input_iterator I, std::sentinel_for<I> S,
+             class T, class Proj = std::identity>
+    requires std::indirect_binary_predicate<std::ranges::equal_to, std::projected<I, Proj>,
+                                            const T*>
+    constexpr bool operator()(I first, S last, const T& value, Proj proj = {}) const
+    {
+        return std::ranges::find(std::move(first), last, value, proj) != last;
+    }
+
+    template<std::ranges::input_range R, class T, class Proj = std::identity>
+    requires std::indirect_binary_predicate<std::ranges::equal_to,
+                                            std::projected<std::ranges::iterator_t<R>, Proj>,
+                                            const T*>
+    constexpr bool operator()(R&& r, const T& value, Proj proj = {}) const
+    {
+        return (*this)(std::ranges::begin(r), std::ranges::end(r), std::move(value), proj);
+    }
+};
+inline constexpr __contains_fn ztd_contains {};
+
 const std::optional<std::string>
 vfs::device::info_mount_points() noexcept
 {
@@ -178,7 +200,7 @@ vfs::device::info_mount_points() noexcept
             continue;
         }
 
-        if (!std::ranges::contains(device_mount_points, mount.mount_point))
+        if (!ztd_contains(device_mount_points, mount.mount_point))
         {
             device_mount_points.emplace_back(mount.mount_point);
         }

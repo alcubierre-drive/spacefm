@@ -16,7 +16,7 @@
 #include <string>
 #include <string_view>
 
-#include <format>
+#include <fmt/core.h>
 
 #include <filesystem>
 
@@ -109,7 +109,7 @@ save_bookmarks() noexcept
     std::string book_entry;
     for (auto [book_path, book_name] : bookmarks)
     {
-        book_entry.append(std::format("file://{} {}\n", book_path.string(), book_name.string()));
+        book_entry.append(fmt::format("file://{} {}\n", book_path.string(), book_name.string()));
     }
 
     write_file(bookmark_file, book_entry);

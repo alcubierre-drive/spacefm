@@ -19,7 +19,7 @@
 #include <string>
 #include <string_view>
 
-#include <format>
+#include <fmt/core.h>
 
 #include <filesystem>
 
@@ -243,7 +243,7 @@ load_settings()
         if (script_exists(command_script))
         {
             const std::string command_args =
-                std::format("{} --config-dir {} --config-file {} --config-version {}",
+                fmt::format("{} --config-dir {} --config-file {} --config-version {}",
                             command_script.string(),
                             settings_config_dir.string(),
                             CONFIG_FILE_FILENAME,
@@ -259,7 +259,7 @@ load_settings()
 
         if (script_exists(command_script))
         {
-            const std::string command_args = std::format("{} --config-dir {} --config-file {}",
+            const std::string command_args = fmt::format("{} --config-dir {} --config-file {}",
                                                          command_script.string(),
                                                          settings_config_dir.string(),
                                                          CONFIG_FILE_FILENAME);
@@ -358,7 +358,7 @@ save_settings()
                         {
                             PtkFileBrowser* file_browser = PTK_FILE_BROWSER_REINTERPRET(
                                 gtk_notebook_get_nth_page(main_window->get_panel_notebook(p), i));
-                            tabs = std::format("{}{}{}",
+                            tabs = fmt::format("{}{}{}",
                                                tabs,
                                                CONFIG_FILE_TABS_DELIM,
                                                // Need to use .string() as libfmt will by default
@@ -834,7 +834,7 @@ xset_edit(GtkWidget* parent, const std::filesystem::path& path)
     else
     { // this might work
         ztd::logger::warn("Editor is not set to a .desktop file");
-        desktop = vfs::desktop::create(std::format("{}.desktop", editor));
+        desktop = vfs::desktop::create(fmt::format("{}.desktop", editor));
     }
 
     const std::vector<std::filesystem::path> open_files{path};
@@ -844,7 +844,7 @@ xset_edit(GtkWidget* parent, const std::filesystem::path& path)
     {
         ptk_show_error(nullptr,
                        "Error",
-                       std::format("Unable to use '{}' to open file:\n{}", editor, path.string()));
+                       fmt::format("Unable to use '{}' to open file:\n{}", editor, path.string()));
     }
 }
 

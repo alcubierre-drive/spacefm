@@ -16,7 +16,7 @@
 #include <string>
 #include <string_view>
 
-#include <format>
+#include <fmt/core.h>
 
 #include <filesystem>
 
@@ -181,12 +181,12 @@ clipboard_get_data(GtkClipboard* clipboard, GtkSelectionData* selection_data, u3
         if (use_uri)
         {
             const std::string uri_name = Glib::filename_to_uri(clipboard_file.string());
-            uri_list.append(std::format("{}\n", uri_name));
+            uri_list.append(fmt::format("{}\n", uri_name));
         }
         else
         {
             // Need to use .string() to avoid fmt adding double quotes when formating
-            uri_list.append(std::format("{}\n", clipboard_file.string()));
+            uri_list.append(fmt::format("{}\n", clipboard_file.string()));
         }
     }
 
@@ -218,7 +218,7 @@ ptk_clipboard_copy_as_text(const std::span<const std::shared_ptr<vfs::file>> sel
     for (const auto& file : sel_files)
     {
         const auto quoted = ztd::shell::quote(file->path().string());
-        file_text = std::format("{} {}", file_text, quoted);
+        file_text = fmt::format("{} {}", file_text, quoted);
     }
     gtk_clipboard_set_text(clip, file_text.data(), -1);
     gtk_clipboard_set_text(clip_primary, file_text.data(), -1);
@@ -233,7 +233,7 @@ ptk_clipboard_copy_name(const std::span<const std::shared_ptr<vfs::file>> sel_fi
     std::string file_text;
     for (const auto& file : sel_files)
     {
-        file_text = std::format("{}{}\n", file_text, file->name());
+        file_text = fmt::format("{}{}\n", file_text, file->name());
     }
     file_text = ztd::strip(file_text);
 
@@ -618,7 +618,7 @@ ptk_clipboard_paste_targets(GtkWindow* parent_win, const std::filesystem::path& 
         {
             ptk_show_error(parent_win ? GTK_WINDOW(parent_win) : nullptr,
                            "Error",
-                           std::format("{} target{} missing",
+                           fmt::format("{} target{} missing",
                                        missing_targets,
                                        missing_targets > 1 ? "s are" : " is"));
         }

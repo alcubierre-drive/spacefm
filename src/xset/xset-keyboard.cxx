@@ -58,15 +58,15 @@ xset_get_keyname(const xset_t& set, i32 key_val, i32 key_mod)
     {
         if (keymod & GdkModifierType::GDK_SUPER_MASK)
         {
-            mod = std::format("Super+{}", mod);
+            mod = fmt::format("Super+{}", mod);
         }
         if (keymod & GdkModifierType::GDK_HYPER_MASK)
         {
-            mod = std::format("Hyper+{}", mod);
+            mod = fmt::format("Hyper+{}", mod);
         }
         if (keymod & GdkModifierType::GDK_META_MASK)
         {
-            mod = std::format("Meta+{}", mod);
+            mod = fmt::format("Meta+{}", mod);
         }
 #if (GTK_MAJOR_VERSION == 4)
         if (keymod & GdkModifierType::GDK_ALT_MASK)
@@ -74,15 +74,15 @@ xset_get_keyname(const xset_t& set, i32 key_val, i32 key_mod)
         if (keymod & GdkModifierType::GDK_MOD1_MASK)
 #endif
         {
-            mod = std::format("Alt+{}", mod);
+            mod = fmt::format("Alt+{}", mod);
         }
         if (keymod & GdkModifierType::GDK_CONTROL_MASK)
         {
-            mod = std::format("Ctrl+{}", mod);
+            mod = fmt::format("Ctrl+{}", mod);
         }
         if (keymod & GdkModifierType::GDK_SHIFT_MASK)
         {
-            mod = std::format("Shift+{}", mod);
+            mod = fmt::format("Shift+{}", mod);
         }
     }
     return mod;
@@ -160,7 +160,7 @@ on_set_key_keypress(GtkWidget* widget, GdkEvent* event, void* user_data)
 
             gtk_message_dialog_format_secondary_text(
                 GTK_MESSAGE_DIALOG(widget),
-                std::format("\t{}\n\tKeycode: {:#x}  Modifier: {:#x}\n\n{} is already assigned to "
+                fmt::format("\t{}\n\tKeycode: {:#x}  Modifier: {:#x}\n\n{} is already assigned to "
                             "'{}'.\n\nPress a different key or click Set to replace the current "
                             "key assignment.",
                             keyname,
@@ -180,7 +180,7 @@ on_set_key_keypress(GtkWidget* widget, GdkEvent* event, void* user_data)
 
     gtk_message_dialog_format_secondary_text(
         GTK_MESSAGE_DIALOG(widget),
-        std::format("\t{}\n\tKeycode: {:#x}  Modifier: {:#x}", keyname, keyval, keymod).data(),
+        fmt::format("\t{}\n\tKeycode: {:#x}  Modifier: {:#x}", keyname, keyval, keymod).data(),
         nullptr);
     *newkey = keyval;
     *newkeymod = keymod;
@@ -212,7 +212,7 @@ xset_set_key(GtkWidget* parent, const xset_t& set)
         GtkDialogFlags::GTK_DIALOG_MODAL,
         GtkMessageType::GTK_MESSAGE_QUESTION,
         GtkButtonsType::GTK_BUTTONS_NONE,
-        std::format("Press your key combination for item '{}' then click Set. "
+        fmt::format("Press your key combination for item '{}' then click Set. "
                     "To remove the current key assignment, click Unset.",
                     name)
             .data(),

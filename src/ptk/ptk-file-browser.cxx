@@ -16,7 +16,7 @@
 #include <string>
 #include <string_view>
 
-#include <format>
+#include <fmt/core.h>
 
 #include <filesystem>
 
@@ -1895,7 +1895,7 @@ folder_view_search_equal(GtkTreeModel* model, i32 col, const char* c_key, GtkTre
 
     if (key.contains("*") || key.contains('?'))
     {
-        const std::string key2 = std::format("*{}*", key);
+        const std::string key2 = fmt::format("*{}*", key);
         no_match = !ztd::fnmatch(key2, name);
     }
     else
@@ -2153,8 +2153,12 @@ init_list_view(PtkFileBrowser* file_browser, GtkTreeView* list_view)
 
         // column order
         usize idx;
-        for (const auto [order_index, order_value] : std::views::enumerate(columns))
+        /* for (const auto [order_index, order_value] : std::views::enumerate(columns)) */
+        /* { */
+        for (auto iter=columns.begin(); iter!=columns.end(); iter++)
         {
+            auto order_index = std::distance(columns.begin(), iter);
+            auto& order_value = *iter;
             idx = order_index;
             if (xset_get_int_panel(p, columns.at(order_index).xset_name, xset::var::x) ==
                 magic_enum::enum_integer(column.column))
@@ -2501,7 +2505,7 @@ on_folder_view_drag_data_get(GtkWidget* widget, GdkDragContext* drag_context,
     for (const auto& file : selected_files)
     {
         const std::string uri = Glib::filename_to_uri(file->path());
-        uri_list.append(std::format("{}\n", uri));
+        uri_list.append(fmt::format("{}\n", uri));
     }
 
     gtk_selection_data_set(sel_data,
@@ -3017,7 +3021,7 @@ PtkFileBrowser::chdir(const std::filesystem::path& new_path,
 
             ptk_show_error(GTK_WINDOW(parent_win),
                            "Error",
-                           std::format("Directory does not exist\n\n{}", path.string()));
+                           fmt::format("Directory does not exist\n\n{}", path.string()));
         }
         return false;
     }
@@ -3035,7 +3039,7 @@ PtkFileBrowser::chdir(const std::filesystem::path& new_path,
             ptk_show_error(
                 GTK_WINDOW(parent_win),
                 "Error",
-                std::format("Unable to access {}\n\n{}", path.string(), std::strerror(errno)));
+                fmt::format("Unable to access {}\n\n{}", path.string(), std::strerror(errno)));
         }
         return false;
     }
@@ -4715,8 +4719,12 @@ PtkFileBrowser::update_views() noexcept
                     break;
                 }
                 const char* title = gtk_tree_view_column_get_title(col);
-                for (const auto [index, column] : std::views::enumerate(columns))
+                /* for (const auto [index, column] : std::views::enumerate(columns)) */
+                /* { */
+                for (auto iter=columns.begin(); iter!=columns.end(); iter++)
                 {
+                    auto index = std::distance(columns.begin(), iter);
+                    auto& column = *iter;
                     if (title == column.title)
                     {
                         // get column width for this panel context
@@ -5577,13 +5585,13 @@ PtkFileBrowser::on_permission(GtkMenuItem* item,
     for (const auto& file : selected_files)
     {
         const std::string file_path = ztd::shell::quote(file->name());
-        file_paths = std::format("{} {}", file_paths, file_path);
+        file_paths = fmt::format("{} {}", file_paths, file_path);
     }
 
     // task
     PtkFileTask* ptask =
         ptk_file_exec_new(set->menu_label.value(), cwd, GTK_WIDGET(this), this->task_view_);
-    ptask->task->exec_command = std::format("{} {} {}", prog, cmd, file_paths);
+    ptask->task->exec_command = fmt::format("{} {} {}", prog, cmd, file_paths);
     ptask->task->exec_browser = this;
     ptask->task->exec_sync = true;
     ptask->task->exec_show_error = true;
@@ -5789,7 +5797,7 @@ PtkFileBrowser::on_action(const xset::name setname) noexcept
         if (is_valid_panel(panel_num))
         {
             xset_t set2;
-            const std::string fullxname = std::format("panel{}_", panel_num);
+            const std::string fullxname = fmt::format("panel{}_", panel_num);
             const std::string xname = ztd::removeprefix(set->name, fullxname);
             if (xname == "show_hidden") // shared key
             {

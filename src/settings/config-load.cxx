@@ -15,7 +15,7 @@
 
 #include <string>
 
-#include <format>
+#include <fmt/core.h>
 
 #include <toml.hpp> // toml11
 
@@ -229,7 +229,7 @@ config_parse_xset(const toml::value& tbl, u64 version)
                 {
                     ptk_show_error(nullptr,
                                    "Error",
-                                   std::format("XSet parse error:\n\n{}", e.what()));
+                                   fmt::format("XSet parse error:\n\n{}", e.what()));
                     return;
                 }
 

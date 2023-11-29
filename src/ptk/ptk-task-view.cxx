@@ -16,7 +16,7 @@
 #include <string>
 #include <string_view>
 
-#include <format>
+#include <fmt/core.h>
 
 #include <filesystem>
 
@@ -127,8 +127,12 @@ on_task_columns_changed(GtkWidget* view, void* user_data)
             return;
         }
         const char* title = gtk_tree_view_column_get_title(col);
-        for (const auto [index, value] : std::views::enumerate(task_names))
+        /* for (const auto [index, value] : std::views::enumerate(task_names)) */
+        /* { */
+        for (auto iter=task_names.begin(); iter!=task_names.end(); iter++)
         {
+            auto index = std::distance(task_names.begin(), iter);
+            auto& value = *iter;
             if (title == task_titles.at(task_view_column(index)))
             {
                 const xset_t set = xset_get(value);
@@ -1002,7 +1006,7 @@ on_task_row_activated(GtkWidget* view, GtkTreePath* tree_path, GtkTreeViewColumn
         {
             // show custom dialog
             ztd::logger::info("TASK_POPUP >>> {}", ptask->pop_handler);
-            const std::string command = std::format("{} -c {}", FISH_PATH, ptask->pop_handler);
+            const std::string command = fmt::format("{} -c {}", FISH_PATH, ptask->pop_handler);
             Glib::spawn_command_line_async(command);
         }
         else
@@ -1118,7 +1122,8 @@ main_task_view_update_task(PtkFileTask* ptask)
         const auto midnight = point - std::chrono::floor<std::chrono::days>(point);
         const auto hours = std::chrono::duration_cast<std::chrono::hours>(midnight);
         const auto minutes = std::chrono::duration_cast<std::chrono::minutes>(midnight - hours);
-        const auto started = std::format("{0:%H}:{1:%M}", hours, minutes);
+
+        const auto started = fmt::format("{:2d}:{:2d}", hours.count(), minutes.count());
 
         gtk_list_store_insert_with_values(GTK_LIST_STORE(model),
                                           &it,
@@ -1163,7 +1168,7 @@ main_task_view_update_task(PtkFileTask* ptask)
             const auto current_file = ptask->task->current_file.value();
 
             path = ptask->task->dest_dir.value(); // cwd
-            file = std::format("( {} )", current_file.string());
+            file = fmt::format("( {} )", current_file.string());
         }
 
         // status
@@ -1178,7 +1183,7 @@ main_task_view_update_task(PtkFileTask* ptask)
             else
             {
                 status =
-                    std::format("{} error {}", ptask->err_count, job_titles.at(ptask->task->type_));
+                    fmt::format("{} error {}", ptask->err_count, job_titles.at(ptask->task->type_));
             }
         }
         else
@@ -1196,11 +1201,11 @@ main_task_view_update_task(PtkFileTask* ptask)
 
         if (ptask->task->state_pause_ == vfs::file_task::state::pause)
         {
-            status_final = std::format("paused {}", status);
+            status_final = fmt::format("paused {}", status);
         }
         else if (ptask->task->state_pause_ == vfs::file_task::state::queue)
         {
-            status_final = std::format("queued {}", status);
+            status_final = fmt::format("queued {}", status);
         }
         else
         {
@@ -1438,8 +1443,12 @@ main_task_view_new(MainWindow* main_window)
 
         // column order
         i64 j = 0;
-        for (const auto [index, value] : std::views::enumerate(task_names))
+        /* for (const auto [index, value] : std::views::enumerate(task_names)) */
+        /* { */
+        for (auto iter=task_names.begin(); iter!=task_names.end(); iter++)
         {
+            auto index = std::distance(task_names.begin(), iter);
+            auto& value = *iter;
             if (xset_get_int(value, xset::var::x) == static_cast<i32>(i))
             {
                 // column width

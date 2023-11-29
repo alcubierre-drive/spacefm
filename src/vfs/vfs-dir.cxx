@@ -15,7 +15,7 @@
 
 #include <string>
 
-#include <format>
+#include <fmt/core.h>
 
 #include <filesystem>
 
@@ -293,7 +293,7 @@ bool
 vfs::dir::add_hidden(const std::shared_ptr<vfs::file>& file) const noexcept
 {
     const auto file_path = std::filesystem::path() / this->path_ / ".hidden";
-    const std::string data = std::format("{}\n", file->name());
+    const std::string data = fmt::format("{}\n", file->name());
 
     return write_file(file_path, data);
 }
@@ -339,6 +339,28 @@ vfs::dir::is_directory_empty() const noexcept
     return this->files_.empty();
 }
 
+struct __contains_fn
+{
+    template<std::input_iterator I, std::sentinel_for<I> S,
+             class T, class Proj = std::identity>
+    requires std::indirect_binary_predicate<std::ranges::equal_to, std::projected<I, Proj>,
+                                            const T*>
+    constexpr bool operator()(I first, S last, const T& value, Proj proj = {}) const
+    {
+        return std::ranges::find(std::move(first), last, value, proj) != last;
+    }
+
+    template<std::ranges::input_range R, class T, class Proj = std::identity>
+    requires std::indirect_binary_predicate<std::ranges::equal_to,
+                                            std::projected<std::ranges::iterator_t<R>, Proj>,
+                                            const T*>
+    constexpr bool operator()(R&& r, const T& value, Proj proj = {}) const
+    {
+        return (*this)(std::ranges::begin(r), std::ranges::end(r), std::move(value), proj);
+    }
+};
+inline constexpr __contains_fn ztd_contains {};
+
 bool
 vfs::dir::update_file_info(const std::shared_ptr<vfs::file>& file) noexcept
 {
@@ -351,7 +373,7 @@ vfs::dir::update_file_info(const std::shared_ptr<vfs::file>& file) noexcept
     }
     else /* The file does not exist */
     {
-        if (std::ranges::contains(this->files_, file))
+        if (ztd_contains(this->files_, file))
         {
             ztd::remove(this->files_, file);
             if (file)
@@ -509,7 +531,7 @@ vfs::dir::emit_file_deleted(const std::filesystem::path& filename,
     const auto file_found = this->find_file(filename, file);
     if (file_found)
     {
-        if (!std::ranges::contains(this->changed_files_, file_found))
+        if (!ztd_contains(this->changed_files_, file_found))
         {
             this->changed_files_.emplace_back(file_found);
 
@@ -542,7 +564,7 @@ vfs::dir::emit_file_changed(const std::filesystem::path& filename,
     const auto file_found = this->find_file(filename, file);
     if (file_found)
     {
-        if (!std::ranges::contains(this->changed_files_, file_found))
+        if (!ztd_contains(this->changed_files_, file_found))
         {
             if (force)
             {

@@ -18,7 +18,7 @@
 #include <string>
 #include <string_view>
 
-#include <format>
+#include <fmt/core.h>
 
 #include <filesystem>
 
@@ -85,7 +85,7 @@ vfs_get_unique_name(const std::filesystem::path& dest_dir, const std::string_vie
     }
     else
     {
-        new_name = std::format("{}.{}", base_name, ext);
+        new_name = fmt::format("{}.{}", base_name, ext);
     }
 
     auto new_dest_file = dest_dir / new_name;
@@ -95,11 +95,11 @@ vfs_get_unique_name(const std::filesystem::path& dest_dir, const std::string_vie
     {
         if (ext.empty())
         {
-            new_name = std::format("{}-copy{}", base_name, ++n);
+            new_name = fmt::format("{}-copy{}", base_name, ++n);
         }
         else
         {
-            new_name = std::format("{}-copy{}.{}", base_name, ++n, ext);
+            new_name = fmt::format("{}-copy{}.{}", base_name, ++n, ext);
         }
 
         new_dest_file = dest_dir / new_name;

@@ -1060,8 +1060,12 @@ namespace preference::terminal
     {
         GtkListStore* model = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_INT);
         const auto terminals = terminal_handlers->get_supported_terminal_names();
-        for (const auto [index, terminal] : std::views::enumerate(terminals))
+        /* for (const auto [index, terminal] : std::views::enumerate(terminals)) */
+        /* { */
+        for (auto terminals_iter=terminals.begin(); terminals_iter!=terminals.end(); terminals_iter++)
         {
+            auto index = std::distance(terminals.begin(), terminals_iter);
+            auto& terminal = *terminals_iter;
             GtkTreeIter iter;
             gtk_list_store_append(model, &iter);
             gtk_list_store_set(model, &iter, 0, terminal.data(), 1, index, -1);

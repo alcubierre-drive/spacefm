@@ -18,7 +18,7 @@
 #include <string>
 #include <string_view>
 
-#include <format>
+#include <fmt/core.h>
 
 #include <filesystem>
 
@@ -99,7 +99,7 @@ vfs::file::update() noexcept
 
     // file size formated
     this->display_size_ = vfs_file_size_format(this->size());
-    this->display_size_bytes_ = std::format("{:L}", this->size());
+    this->display_size_bytes_ = fmt::format("{:L}", this->size());
 
     // disk file size formated
     this->display_disk_size_ = vfs_file_size_format(this->size_on_disk());

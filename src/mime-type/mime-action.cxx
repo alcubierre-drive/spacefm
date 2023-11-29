@@ -30,7 +30,7 @@
 #include <string>
 #include <string_view>
 
-#include <format>
+#include <fmt/core.h>
 
 #include <filesystem>
 
@@ -54,6 +54,28 @@
 
 #include "mime-type/mime-action.hxx"
 
+struct __contains_fn
+{
+    template<std::input_iterator I, std::sentinel_for<I> S,
+             class T, class Proj = std::identity>
+    requires std::indirect_binary_predicate<std::ranges::equal_to, std::projected<I, Proj>,
+                                            const T*>
+    constexpr bool operator()(I first, S last, const T& value, Proj proj = {}) const
+    {
+        return std::ranges::find(std::move(first), last, value, proj) != last;
+    }
+
+    template<std::ranges::input_range R, class T, class Proj = std::identity>
+    requires std::indirect_binary_predicate<std::ranges::equal_to,
+                                            std::projected<std::ranges::iterator_t<R>, Proj>,
+                                            const T*>
+    constexpr bool operator()(R&& r, const T& value, Proj proj = {}) const
+    {
+        return (*this)(std::ranges::begin(r), std::ranges::end(r), std::move(value), proj);
+    }
+};
+inline constexpr __contains_fn ztd_contains {};
+
 static void
 save_to_file(const std::filesystem::path& path, const Glib::ustring& data)
 {
@@ -69,7 +91,7 @@ static void
 update_desktop_database()
 {
     const auto path = vfs::user_dirs->data_dir() / "applications";
-    const std::string command = std::format("update-desktop-database {}", path.string());
+    const std::string command = fmt::format("update-desktop-database {}", path.string());
     ztd::logger::info("COMMAND={}", command);
     Glib::spawn_command_line_sync(command);
 }
@@ -136,7 +158,7 @@ remove_actions(const std::string_view mime_type, std::vector<std::string>& actio
     for (auto& r : removed)
     {
         const std::string rem = r;
-        if (std::ranges::contains(actions, rem))
+        if (ztd_contains(actions, rem))
         {
             ztd::remove(actions, rem);
             // ztd::logger::info("        ACTION-REMOVED {}", rem);
@@ -248,7 +270,7 @@ get_actions(const std::filesystem::path& dir, const std::string_view mime_type,
                     }
                 }
                 const std::string app = a;
-                if (!is_removed && !std::ranges::contains(actions, app))
+                if (!is_removed && !ztd_contains(actions, app))
                 {
                     /* check for app existence */
                     if (mime_type_locate_desktop_file(app))
@@ -297,7 +319,7 @@ mime_type_get_actions(const std::string_view mime_type)
     if (check_default_app)
     {
         const auto& default_app = check_default_app.value();
-        if (!std::ranges::contains(actions, default_app))
+        if (!ztd_contains(actions, default_app))
         {
             // default app is not in the list, add it!
             actions.emplace_back(default_app);
@@ -538,7 +560,7 @@ make_custom_desktop_file(const std::string_view desktop_id, const std::string_vi
 #endif
 
         const std::string name = ztd::removesuffix(desktop_id, desktop_ext);
-        cust_template = std::format("{}-usercustom-{}.desktop", name, replace_txt);
+        cust_template = fmt::format("{}-usercustom-{}.desktop", name, replace_txt);
 
 #if (GTK_MAJOR_VERSION == 4)
         file_content = kf->to_data();
@@ -550,9 +572,9 @@ make_custom_desktop_file(const std::string_view desktop_id, const std::string_vi
     {
         /* Make a user-created desktop file for the command */
         const auto name = std::filesystem::path(desktop_id).filename();
-        cust_template = std::format("{}-usercreated-{}.desktop", name.string(), replace_txt);
+        cust_template = fmt::format("{}-usercreated-{}.desktop", name.string(), replace_txt);
 
-        file_content = std::format("[Desktop Entry]\n"
+        file_content = fmt::format("[Desktop Entry]\n"
                                    "Type=Application"
                                    "Name={}\n"
                                    "Exec={}\n"
@@ -670,7 +692,7 @@ mime_type_get_default_action(const std::string_view mime_type)
 {
     assert(mime_type.empty() != true);
 
-    const auto command = std::format("xdg-mime query default {}", mime_type);
+    const auto command = fmt::format("xdg-mime query default {}", mime_type);
     // ztd::logger::debug("COMMAND={}", command);
     std::string standard_output;
     Glib::spawn_command_line_sync(command, &standard_output, nullptr, nullptr);
@@ -688,7 +710,7 @@ mime_type_set_default_action(const std::string_view mime_type, const std::string
     assert(mime_type.empty() != true);
     assert(desktop_id.empty() != true);
 
-    const auto command = std::format("xdg-mime default {} {}", desktop_id, mime_type);
+    const auto command = fmt::format("xdg-mime default {} {}", desktop_id, mime_type);
     ztd::logger::debug("COMMAND={}", command);
     Glib::spawn_command_line_sync(command);
 }

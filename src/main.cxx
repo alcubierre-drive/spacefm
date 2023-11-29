@@ -15,7 +15,7 @@
 
 #include <string>
 
-#include <format>
+#include <fmt/core.h>
 
 #include <filesystem>
 
@@ -90,7 +90,7 @@ open_file(const std::filesystem::path& path)
         ptk_show_error(
             nullptr,
             "Error",
-            std::format("Unable to use '{}' to open file:\n{}", app_name, path.string()));
+            fmt::format("Unable to use '{}' to open file:\n{}", app_name, path.string()));
     }
 }
 
@@ -271,7 +271,7 @@ main(int argc, char* argv[])
                 ztd::logger::error("Not a directory: '{}'", file.string());
                 continue;
             }
-            const auto command = std::format("{} socket set new-tab {}",
+            const auto command = fmt::format("{} socket set new-tab {}",
                                              ztd::program::exe().string(),
                                              ztd::shell::quote(file.string()));
             Glib::spawn_command_line_sync(command);

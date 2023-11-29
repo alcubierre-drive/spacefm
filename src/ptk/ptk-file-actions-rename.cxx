@@ -16,7 +16,7 @@
 #include <string>
 #include <string_view>
 
-#include <format>
+#include <fmt/core.h>
 
 #include <filesystem>
 
@@ -311,7 +311,7 @@ on_move_change(GtkWidget* widget, const std::shared_ptr<MoveSet>& mset)
         // update full_name
         if (name && !ext.empty())
         {
-            full_name = std::format("{}.{}", name, ext);
+            full_name = fmt::format("{}.{}", name, ext);
         }
         else if (name && ext.empty())
         {
@@ -1121,8 +1121,12 @@ on_browse_mode_toggled(GtkMenuItem* item, GtkWidget* dlg)
         file_misc_mode::path,
     };
 
-    for (const auto [index, value] : std::views::enumerate(misc_modes))
+    /* for (const auto [index, value] : std::views::enumerate(misc_modes)) */
+    /* { */
+    for (auto iter=misc_modes.begin(); iter!=misc_modes.end(); iter++)
     {
+        auto index = std::distance(misc_modes.begin(), iter);
+        auto& value = *iter;
         if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mode[index])))
         {
             const GtkFileChooserAction action =
@@ -1234,8 +1238,12 @@ on_browse_button_press(GtkWidget* widget, const std::shared_ptr<MoveSet>& mset)
                                  true);
     gtk_box_pack_start(hbox, gtk_label_new("Insert as"), false, true, 2);
 
-    for (const auto [index, value] : std::views::enumerate(misc_modes))
+    /* for (const auto [index, value] : std::views::enumerate(misc_modes)) */
+    /* { */
+    for (auto iter=misc_modes.begin(); iter!=misc_modes.end(); iter++)
     {
+        auto index = std::distance(misc_modes.begin(), iter);
+        auto& value = *iter;
         gtk_widget_set_focus_on_click(GTK_WIDGET(mode[index]), false);
         g_signal_connect(G_OBJECT(mode[index]), "toggled", G_CALLBACK(on_browse_mode_toggled), dlg);
         gtk_box_pack_start(hbox, mode[index], false, true, 2);
@@ -1268,8 +1276,12 @@ on_browse_button_press(GtkWidget* widget, const std::shared_ptr<MoveSet>& mset)
     // bogus GTK warning here: Unable to retrieve the file info for...
     if (response == GtkResponseType::GTK_RESPONSE_OK)
     {
-        for (const auto [index, value] : std::views::enumerate(misc_modes))
+        /* for (const auto [index, value] : std::views::enumerate(misc_modes)) */
+        /* { */
+        for (auto iter=misc_modes.begin(); iter!=misc_modes.end(); iter++)
         {
+            auto index = std::distance(misc_modes.begin(), iter);
+            auto& value = *iter;
             if (!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mode[index])))
             {
                 continue;
@@ -1309,8 +1321,12 @@ on_browse_button_press(GtkWidget* widget, const std::shared_ptr<MoveSet>& mset)
     xset_set(xset::name::move_dlg_help, xset::var::y, std::to_string(allocation.height));
 
     // save mode
-    for (const auto [index, value] : std::views::enumerate(misc_modes))
+    /* for (const auto [index, value] : std::views::enumerate(misc_modes)) */
+    /* { */
+    for (auto iter=misc_modes.begin(); iter!=misc_modes.end(); iter++)
     {
+        auto index = std::distance(misc_modes.begin(), iter);
+        auto& value = *iter;
         if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mode[index])))
         {
             xset_set(xset::name::move_dlg_help,
@@ -1418,7 +1434,7 @@ on_opt_toggled(GtkMenuItem* item, const std::shared_ptr<MoveSet>& mset)
     {
         desc = mset->desc;
     }
-    const std::string title = std::format("{} {}", action, desc);
+    const std::string title = fmt::format("{} {}", action, desc);
     gtk_window_set_title(GTK_WINDOW(mset->dlg), title.data());
 
     if (!btn_label.empty())
@@ -2109,7 +2125,7 @@ get_unique_name(const std::filesystem::path& dir, const std::string_view ext = "
     }
     else
     {
-        const std::string name = std::format("{}.{}", base, ext);
+        const std::string name = fmt::format("{}.{}", base, ext);
         path = dir / name;
     }
 
@@ -2119,11 +2135,11 @@ get_unique_name(const std::filesystem::path& dir, const std::string_view ext = "
         std::string name;
         if (ext.empty())
         {
-            name = std::format("{}{}", base, ++n);
+            name = fmt::format("{}{}", base, ++n);
         }
         else
         {
-            name = std::format("{}{}.{}", base, ++n, ext);
+            name = fmt::format("{}{}.{}", base, ++n, ext);
         }
 
         path = dir / name;
@@ -2460,11 +2476,11 @@ ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir,
             mset->mime_type = target_path;
             if (std::filesystem::exists(target_path))
             {
-                type = std::format("Link-> {}", target_path.string());
+                type = fmt::format("Link-> {}", target_path.string());
             }
             else
             {
-                type = std::format("!Link-> {} (missing)", target_path.string());
+                type = fmt::format("!Link-> {} (missing)", target_path.string());
                 target_missing = true;
             }
         }
@@ -2480,7 +2496,7 @@ ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir,
         if (mime_type)
         {
             mset->mime_type = mime_type->type();
-            type = std::format(" {} ( {} )", mime_type->description(), mset->mime_type);
+            type = fmt::format(" {} ( {} )", mime_type->description(), mset->mime_type);
         }
         else
         {
@@ -3005,7 +3021,7 @@ ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir,
                     ptk_show_error(
                         GTK_WINDOW(mset->dlg),
                         "Mkdir Error",
-                        std::format("Error creating parent directory\n\n{}", std::strerror(errno)));
+                        fmt::format("Error creating parent directory\n\n{}", std::strerror(errno)));
                     continue;
                 }
             }
@@ -3057,11 +3073,11 @@ ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir,
 
                 if (overwrite)
                 {
-                    ptask->task->exec_command = std::format("ln -sf {} {}", from_path, to_path);
+                    ptask->task->exec_command = fmt::format("ln -sf {} {}", from_path, to_path);
                 }
                 else
                 {
-                    ptask->task->exec_command = std::format("ln -s {} {}", from_path, to_path);
+                    ptask->task->exec_command = fmt::format("ln -s {} {}", from_path, to_path);
                 }
                 ptask->task->exec_sync = true;
                 ptask->task->exec_popup = false;
@@ -3110,18 +3126,18 @@ ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir,
                 std::string over_cmd;
                 if (overwrite)
                 {
-                    over_cmd = std::format("rm -f {} && ", to_path);
+                    over_cmd = fmt::format("rm -f {} && ", to_path);
                 }
 
                 PtkFileTask* ptask = ptk_file_exec_new("Create New File", mset->parent, task_view);
                 if (from_path.empty())
                 {
-                    ptask->task->exec_command = std::format("{}touch {}", over_cmd, to_path);
+                    ptask->task->exec_command = fmt::format("{}touch {}", over_cmd, to_path);
                 }
                 else
                 {
                     ptask->task->exec_command =
-                        std::format("{}cp -f {} {}", over_cmd, from_path, to_path);
+                        fmt::format("{}cp -f {} {}", over_cmd, from_path, to_path);
                 }
                 ptask->task->exec_sync = true;
                 ptask->task->exec_popup = false;
@@ -3176,11 +3192,11 @@ ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir,
                     ptk_file_exec_new("Create New Directory", mset->parent, task_view);
                 if (from_path.empty())
                 {
-                    ptask->task->exec_command = std::format("mkdir {}", to_path);
+                    ptask->task->exec_command = fmt::format("mkdir {}", to_path);
                 }
                 else
                 {
-                    ptask->task->exec_command = std::format("cp -rL {} {}", from_path, to_path);
+                    ptask->task->exec_command = fmt::format("cp -rL {} {}", from_path, to_path);
                 }
                 ptask->task->exec_sync = true;
                 ptask->task->exec_popup = false;
@@ -3226,12 +3242,12 @@ ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir,
 
                 if (mset->is_dir)
                 {
-                    ptask->task->exec_command = std::format("cp -Pfr {} {}", from_path, to_path);
+                    ptask->task->exec_command = fmt::format("cp -Pfr {} {}", from_path, to_path);
                 }
                 else
                 {
                     ptask->task->exec_command =
-                        std::format("cp -Pf{} {} {}", over_opt, from_path, to_path);
+                        fmt::format("cp -Pf{} {} {}", over_opt, from_path, to_path);
                 }
                 ptask->task->exec_sync = true;
                 ptask->task->exec_popup = false;
@@ -3263,11 +3279,11 @@ ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir,
                 to_path = ztd::shell::quote(full_path.string());
                 if (overwrite)
                 {
-                    ptask->task->exec_command = std::format("ln -sf {} {}", from_path, to_path);
+                    ptask->task->exec_command = fmt::format("ln -sf {} {}", from_path, to_path);
                 }
                 else
                 {
-                    ptask->task->exec_command = std::format("ln -s {} {}", from_path, to_path);
+                    ptask->task->exec_command = fmt::format("ln -s {} {}", from_path, to_path);
                 }
                 ptask->task->exec_sync = true;
                 ptask->task->exec_popup = false;
@@ -3287,11 +3303,11 @@ ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir,
                 to_path = ztd::shell::quote(full_path.string());
                 if (overwrite)
                 {
-                    ptask->task->exec_command = std::format("mv -f {} {}", from_path, to_path);
+                    ptask->task->exec_command = fmt::format("mv -f {} {}", from_path, to_path);
                 }
                 else
                 {
-                    ptask->task->exec_command = std::format("mv {} {}", from_path, to_path);
+                    ptask->task->exec_command = fmt::format("mv {} {}", from_path, to_path);
                 }
                 ptask->task->exec_sync = true;
                 ptask->task->exec_popup = false;
@@ -3316,7 +3332,7 @@ ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir,
                     // Unknown error has occurred - alert user as usual
                     ptk_show_error(GTK_WINDOW(mset->dlg),
                                    "Rename Error",
-                                   std::format("Error renaming file\n\n{}", std::strerror(errno)));
+                                   fmt::format("Error renaming file\n\n{}", std::strerror(errno)));
                     continue;
                 }
             }
@@ -3389,7 +3405,7 @@ ptk_file_misc_paste_as(PtkFileBrowser* file_browser, const std::filesystem::path
 
         ptk_show_error(GTK_WINDOW(parent),
                        "Error",
-                       std::format("{} target{} missing",
+                       fmt::format("{} target{} missing",
                                    missing_targets,
                                    missing_targets > 1 ? "s are" : " is"));
     }

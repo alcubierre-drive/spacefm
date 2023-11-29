@@ -16,7 +16,7 @@
 #include <string>
 #include <string_view>
 
-#include <format>
+#include <fmt/core.h>
 
 #include <filesystem>
 
@@ -124,7 +124,7 @@ open_files_with_app(const std::shared_ptr<ParentInfo>& parent,
         ptk_show_error(
             nullptr,
             "Error",
-            std::format("Unable to use '{}' to open files:\n{}", app_desktop, file_list));
+            fmt::format("Unable to use '{}' to open files:\n{}", app_desktop, file_list));
     }
 
     return true;
@@ -229,7 +229,7 @@ ptk_open_files_with_app(const std::filesystem::path& cwd,
 
                     ptk_show_error(GTK_WINDOW(toplevel),
                                    "Broken Link",
-                                   std::format("This symlink's target is missing or you do not "
+                                   fmt::format("This symlink's target is missing or you do not "
                                                "have permission to access it:\n{}\n\nTarget: {}",
                                                file->path().string(),
                                                target_path.string()));

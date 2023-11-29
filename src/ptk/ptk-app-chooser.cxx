@@ -17,7 +17,7 @@
 #include <string>
 #include <string_view>
 
-#include <format>
+#include <fmt/core.h>
 
 #include <filesystem>
 
@@ -137,7 +137,7 @@ add_list_item(GtkListStore* list_store, const std::string_view path)
     const auto desktop = vfs::desktop::create(path);
 
     // tooltip
-    const std::string tooltip = std::format("{}\nName={}\nExec={}\nTerminal={}",
+    const std::string tooltip = fmt::format("{}\nName={}\nExec={}\nTerminal={}",
                                             desktop->path().string(),
                                             desktop->display_name(),
                                             desktop->exec(),
@@ -391,7 +391,7 @@ app_chooser_dialog(GtkWindow* parent, const std::shared_ptr<vfs::mime_type>& mim
     gtk_label_set_xalign(label_file_type, 0.0);
     gtk_label_set_yalign(label_file_type, 0.5);
 
-    const auto mime_desc = std::format(" {}\n ( {} )", mime_type->description(), mime_type->type());
+    const auto mime_desc = fmt::format(" {}\n ( {} )", mime_type->description(), mime_type->type());
     GtkLabel* label_file_type_content = GTK_LABEL(gtk_label_new(mime_desc.data()));
     gtk_label_set_xalign(label_file_type, 0.0);
     gtk_label_set_yalign(label_file_type, 0.5);

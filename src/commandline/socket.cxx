@@ -15,7 +15,7 @@
 
 #include <string>
 
-#include <format>
+#include <fmt/core.h>
 
 #include <memory>
 
@@ -46,7 +46,7 @@ run_subcommand_socket(const socket_subcommand_data_t& opt)
     socket.set(zmqpp::socket_option::receive_timeout, 1000);
     try
     {
-        socket.connect(std::format("tcp://localhost:{}", ZMQ_PORT));
+        socket.connect(fmt::format("tcp://localhost:{}", ZMQ_PORT));
     }
     catch (const zmqpp::exception& e)
     {
